@@ -160,7 +160,7 @@ function toMin(t){var x=hm(t);return x[0]*60+x[1];}
 function wmT(){return S.wm||'08:00';}
 function weT(){return S.we||'20:30';}
 function widgetSync(){if(!NATIVE||!NATIVE.setWidgetData)return;try{
-  NATIVE.setWidgetData(JSON.stringify(Q.map(function(q){return {t:q.t,a:q.a};})),QS.m[0],QS.e[0]);
+  NATIVE.setWidgetData(JSON.stringify(Q.map(function(q){return {t:q.t,a:q.a,n:q.n};})),QS.m[0],QS.e[0]);
   var a=hm(wmT()),b=hm(weT());NATIVE.setWidgetTimes(a[0],a[1],b[0],b[1]);
   var d=today();NATIVE.markAnswered('m',done(d,'m')?d:'');NATIVE.markAnswered('e',done(d,'e')?d:'');
   var v=JSON.parse(NATIVE.getWidgetVotes()||'{}');S.votes=v;save();}catch(e){}}

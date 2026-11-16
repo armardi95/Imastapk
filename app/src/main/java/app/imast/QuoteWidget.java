@@ -30,6 +30,7 @@ public class QuoteWidget extends AppWidgetProvider {
     private static final String A_LIKE = "app.imast.W_LIKE";
     private static final String A_DISLIKE = "app.imast.W_DISLIKE";
     private static final String A_TICK = "app.imast.W_TICK";
+    private static final String A_SIMPLE = "app.imast.W_SIMPLE";
     private static final int WINDOW_MIN = 60;
 
     private static final int GOLD = 0xFFD4AE5A;
@@ -64,7 +65,7 @@ public class QuoteWidget extends AppWidgetProvider {
                     int cur = p.getInt("qIdx", 0), next;
                     Random r = new Random();
                     do { next = r.nextInt(n); } while (next == cur);
-                    p.edit().putInt("qIdx", next).putString("qDate", today()).apply();
+                    p.edit().putInt("qIdx", next).putString("qDate", today()).putBoolean("simple", false).apply();
                 }
                 updateAll(c);
                 break;
@@ -72,6 +73,10 @@ public class QuoteWidget extends AppWidgetProvider {
             case A_LIKE:
             case A_DISLIKE:
                 vote(p, p.getInt("qIdx", 0), A_LIKE.equals(a) ? 1 : -1);
+                updateAll(c);
+                break;
+            case A_SIMPLE:
+                p.edit().putBoolean("simple", !p.getBoolean("simple", false)).apply();
                 updateAll(c);
                 break;
             case A_TICK:
@@ -96,6 +101,9 @@ public class QuoteWidget extends AppWidgetProvider {
     private static RemoteViews build(Context c) {
         SharedPreferences p = prefs(c);
         RemoteViews v = new RemoteViews(c.getPackageName(), R.layout.widget_quote);
+        v.setViewVisibility(R.id.simpleLabel, View.GONE);
+        v.setViewVisibility(R.id.simpleText, View.GONE);
+        v.setInt(R.id.text, "setMaxLines", 6);
         String day = today();
         int now = nowMin();
         int wm = p.getInt("wm", 8 * 60), we = p.getInt("we", 20 * 60 + 30);
@@ -150,13 +158,20 @@ public class QuoteWidget extends AppWidgetProvider {
 
         if (!day.equals(p.getString("qDate", ""))) {
             int idx = Math.abs((day.hashCode() * 31) % n);
-            p.edit().putInt("qIdx", idx).putString("qDate", day).apply();
+            p.edit().putInt("qIdx", idx).putString("qDate", day).putBoolean("simple", false).apply();
         }
         int idx = Math.min(p.getInt("qIdx", 0), n - 1);
         try {
             JSONObject q = new JSONArray(p.getString("quotes", "[]")).getJSONObject(idx);
             v.setTextViewText(R.id.text, "«" + q.optString("t") + "»");
             v.setTextViewText(R.id.author, q.optString("a"));
+            String simple = q.optString("n", "");
+            if (p.getBoolean("simple", false) && !simple.isEmpty()) {
+                v.setInt(R.id.text, "setMaxLines", 2);
+                v.setTextViewText(R.id.simpleText, simple);
+                v.setViewVisibility(R.id.simpleLabel, View.VISIBLE);
+                v.setViewVisibility(R.id.simpleText, View.VISIBLE);
+            }
         } catch (Exception e) {
             v.setTextViewText(R.id.text, "Откройте Imast, чтобы загрузить цитаты.");
         }
@@ -169,7 +184,9 @@ public class QuoteWidget extends AppWidgetProvider {
         v.setTextColor(R.id.like, vote == -1 ? DIM : GOLD);
         v.setTextColor(R.id.dislike, vote == 1 ? DIM : GOLD);
 
-        v.setOnClickPendingIntent(R.id.text, self(c, A_NEXT, 1));
+        v.setOnClickPendingIntent(R.id.text, self(c, A_SIMPLE, 1));
+        v.setOnClickPendingIntent(R.id.simpleText, self(c, A_SIMPLE, 5));
+        v.setOnClickPendingIntent(R.id.simpleLabel, self(c, A_SIMPLE, 6));
         v.setOnClickPendingIntent(R.id.next, self(c, A_NEXT, 4));
         v.setOnClickPendingIntent(R.id.like, self(c, A_LIKE, 2));
         v.setOnClickPendingIntent(R.id.dislike, self(c, A_DISLIKE, 3));
