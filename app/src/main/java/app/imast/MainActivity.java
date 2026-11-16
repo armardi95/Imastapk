@@ -33,6 +33,7 @@ public class MainActivity extends Activity {
     private boolean fellBack = false;
     private String pendingPermission;
     private ValueCallback<Uri[]> fileCallback;
+    private String launchSess = "";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -96,6 +97,7 @@ public class MainActivity extends Activity {
             }
         });
 
+        readLaunch(getIntent());
         Reminders.ensureChannel(this);
         Reminders.rescheduleAll(this);
 
@@ -104,6 +106,33 @@ public class MainActivity extends Activity {
         } else {
             web.restoreState(savedInstanceState);
         }
+    }
+
+    // ---------- запуск из виджета ----------
+
+    private void readLaunch(Intent i) {
+        String s = i == null ? null : i.getStringExtra("sess");
+        if (s != null) {
+            launchSess = s;
+            i.removeExtra("sess");
+        }
+    }
+
+    @Override
+    protected void onNewIntent(Intent intent) {
+        super.onNewIntent(intent);
+        readLaunch(intent);
+        if (!launchSess.isEmpty()) {
+            String s = launchSess;
+            launchSess = "";
+            callback("launch", quote(s));
+        }
+    }
+
+    String takeLaunch() {
+        String s = launchSess;
+        launchSess = "";
+        return s;
     }
 
     // ---------- для NativeBridge ----------

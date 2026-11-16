@@ -169,6 +169,45 @@ public class NativeBridge {
         else v.vibrate(ms);
     }
 
+    // ---------- виджет ----------
+
+    /** quotesJson: [{"t":"...","a":"..."}], qm/qe: первые утренний и вечерний вопросы */
+    @JavascriptInterface
+    public void setWidgetData(String quotesJson, String qm, String qe) { QuoteWidget.setData(a, quotesJson, qm, qe); }
+
+    /** Начало утреннего и вечернего окна вопросов (каждое длится час) */
+    @JavascriptInterface
+    public void setWidgetTimes(int mh, int mm, int eh, int em) { QuoteWidget.setTimes(a, mh * 60 + mm, eh * 60 + em); }
+
+    /** sess: m | e, date: yyyy-MM-dd */
+    @JavascriptInterface
+    public void markAnswered(String sess, String date) { QuoteWidget.markAnswered(a, sess, date); }
+
+    /** Голоса за цитаты, поставленные в виджете: {"индекс": 1 | -1} */
+    @JavascriptInterface public String getWidgetVotes() { return QuoteWidget.votesJson(a); }
+
+    @JavascriptInterface public void setWidgetVotes(String json) { QuoteWidget.setVotes(a, json); }
+
+    /** Какую сессию открыть, если приложение запущено кнопкой «Ответить» в виджете. Читается один раз. */
+    @JavascriptInterface public String takeLaunch() { return a.takeLaunch(); }
+
+    /** Есть ли виджет на экране */
+    @JavascriptInterface
+    public boolean hasWidget() {
+        int[] ids = android.appwidget.AppWidgetManager.getInstance(a)
+                .getAppWidgetIds(new android.content.ComponentName(a, QuoteWidget.class));
+        return ids != null && ids.length > 0;
+    }
+
+    /** Просит лаунчер добавить виджет на главный экран (Android 8+, если лаунчер умеет) */
+    @JavascriptInterface
+    public boolean requestPinWidget() {
+        if (Build.VERSION.SDK_INT < 26) return false;
+        android.appwidget.AppWidgetManager m = a.getSystemService(android.appwidget.AppWidgetManager.class);
+        if (m == null || !m.isRequestPinAppWidgetSupported()) return false;
+        return m.requestPinAppWidget(new android.content.ComponentName(a, QuoteWidget.class), null, null);
+    }
+
     // ---------- вспомогательное ----------
 
     private boolean granted(String p) {

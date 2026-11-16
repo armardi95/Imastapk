@@ -155,12 +155,21 @@ function load(){
 var S=load();
 /* ---------- мост к телефону (есть только внутри APK) ---------- */
 var NATIVE=window.ImastNative||null, nCbs={}, locked=false;
-window.ImastNativeCallback=function(t,v){var f=nCbs[t];if(f){delete nCbs[t];f(v);}};
+window.ImastNativeCallback=function(t,v){if(t==='launch'){openSess(v);return;}if(t==='resume'){widgetSync();return;}var f=nCbs[t];if(f){delete nCbs[t];f(v);}};
+function toMin(t){var x=hm(t);return x[0]*60+x[1];}
+function wmT(){return S.wm||'08:00';}
+function weT(){return S.we||'20:30';}
+function widgetSync(){if(!NATIVE||!NATIVE.setWidgetData)return;try{
+  NATIVE.setWidgetData(JSON.stringify(Q.map(function(q){return {t:q.t,a:q.a};})),QS.m[0],QS.e[0]);
+  var a=hm(wmT()),b=hm(weT());NATIVE.setWidgetTimes(a[0],a[1],b[0],b[1]);
+  var d=today();NATIVE.markAnswered('m',done(d,'m')?d:'');NATIVE.markAnswered('e',done(d,'e')?d:'');
+  var v=JSON.parse(NATIVE.getWidgetVotes()||'{}');S.votes=v;save();}catch(e){}}
+function openSess(s){if(s!=='m'&&s!=='e')return;wiz={sess:s,i:0,ans:[]};closeModal();go('diary');}
 function nPerm(name,fn){if(!NATIVE){fn(true);return;}if(NATIVE.hasPermission(name)){fn(true);return;}nCbs['permission:'+name]=fn;NATIVE.requestPermission(name);}
 function hm(t){var p=(t||'08:00').split(':');return [+p[0]||0,+p[1]||0];}
 function habitOn(h){if(!NATIVE)return;var t=hm(h.time);NATIVE.setReminder(h.id,'Imast · '+h.name,'Время для привычки',t[0],t[1],h.days.join(','));}
 function habitOff(id){if(NATIVE)NATIVE.cancelReminder(id);}
-function journalSync(){if(!NATIVE)return;if(S.jr){NATIVE.setReminder('journal-m','Imast · утро','Три вопроса на день ждут вас',8,0,'');NATIVE.setReminder('journal-e','Imast · вечер','Подведите итоги дня',20,30,'');}else{NATIVE.cancelReminder('journal-m');NATIVE.cancelReminder('journal-e');}}
+function journalSync(){if(!NATIVE)return;if(S.jr){var a=hm(wmT()),b=hm(weT());NATIVE.setReminder('journal-m','Imast · утро','Три вопроса на день ждут вас',a[0],a[1],'');NATIVE.setReminder('journal-e','Imast · вечер','Подведите итоги дня',b[0],b[1],'');}else{NATIVE.cancelReminder('journal-m');NATIVE.cancelReminder('journal-e');}}
 function unlock(){NATIVE.authenticate('Вход в Imast');nCbs.auth=function(v){if(v===true){locked=false;closeModal();render();}else if(v==='unavailable'){locked=false;S.bio=false;save();closeModal();render();toast('Отпечаток недоступен, вход по нему выключен');}};}
 function exportData(){var txt=JSON.stringify(S);if(NATIVE)NATIVE.shareText(txt,'Imast — резервная копия '+today());else{var bl=new Blob([txt],{type:'application/json'}),u=URL.createObjectURL(bl),ln=document.createElement('a');ln.href=u;ln.download='imast-'+today()+'.json';document.body.appendChild(ln);ln.click();ln.remove();setTimeout(function(){URL.revokeObjectURL(u);},1000);toast('Копия сохранена файлом');}}
 function save(){var s=JSON.stringify(S); mem=s; try{localStorage.setItem(KEY,s);}catch(e){}}
@@ -180,7 +189,8 @@ function today(){return ymd(new Date());}
 function phase(){
   if(S.timeMode==='m') return 'm';
   if(S.timeMode==='e') return 'e';
-  return new Date().getHours()>=20?'e':'m';
+  var n=new Date(),now=n.getHours()*60+n.getMinutes(),es=Math.min(20*60,(S&&S.we)?toMin(S.we):20*60);
+  return now>=es?'e':'m';
 }
 function rec(date){return S.days[date]||(S.days[date]={});}
 function done(date,sess){var r=S.days[date];return !!(r&&r[sess]&&r[sess].length===3);}
@@ -319,7 +329,7 @@ function viewDiary(){
   var seg='<div class="seg" role="group" aria-label="Время суток"><button data-act="sess" data-v="m" aria-pressed="'+(sess==='m')+'">Утро'+(done(d,'m')?' ✓':'')+'</button><button data-act="sess" data-v="e" aria-pressed="'+(sess==='e')+'">Вечер'+(done(d,'e')?' ✓':'')+'</button></div>';
   var body='';
   if(sess==='e'&&p==='m'&&!done(d,'e')){
-    body='<div class="card"><h3>Вечерние вопросы</h3><p>Они открываются после 20:00.</p><button class="btn" data-act="demoeve">Демо: показать вечер сейчас</button></div>';
+    body='<div class="card"><h3>Вечерние вопросы</h3><p>Они открываются после '+(S.we&&toMin(S.we)<20*60?esc(S.we):'20:00')+'.</p><button class="btn" data-act="demoeve">Демо: показать вечер сейчас</button></div>';
   }else if(done(d,sess)){
     body='<div class="card"><h3>'+(sess==='m'?'Утро':'Вечер')+' записано</h3><div class="answers">'+
       QS[sess].map(function(q,i){return '<div class="ans"><b>'+(i+1)+'</b><span><span class="muted">'+esc(q)+'</span><br>'+esc(S.days[d][sess][i])+'</span></div>';}).join('')+'</div></div>';
@@ -422,7 +432,11 @@ function modal(kind){
      '<p class="small muted">Всё хранится только в этом браузере. Аккаунтов и серверов в демо нет.</p>'+
      '<div><div class="muted small" style="margin-bottom:6px">Время суток для проверки</div><div class="seg" style="grid-template-columns:repeat(3,1fr)">'+
        [['auto','Авто'],['m','Утро'],['e','Вечер']].map(function(x){return '<button data-act="tm" data-v="'+x[0]+'" aria-pressed="'+(S.timeMode===x[0])+'">'+x[1]+'</button>';}).join('')+'</div></div>'+
-     (NATIVE?'<div class="switch"><span>Напоминать о дневнике (8:00 и 20:30)</span><button class="chipbtn" data-act="jr" aria-pressed="'+(!!S.jr)+'">'+(S.jr?'Включено':'Выключено')+'</button></div>'+
+     (NATIVE?'<div class="card" style="margin:0"><h3>Виджет</h3><p class="muted small">Утром и вечером на час виджет показывает вопросы вместо цитаты.</p>'+
+       '<label for="wmT">Утренние вопросы с<input type="time" id="wmT" value="'+wmT()+'"></label>'+
+       '<label for="weT">Вечерние вопросы с<input type="time" id="weT" value="'+weT()+'"></label>'+
+       '<button class="btn" data-act="pinw">Добавить виджет на экран</button></div>'+
+       '<div class="switch"><span>Напоминать о дневнике ('+wmT()+' и '+weT()+')</span><button class="chipbtn" data-act="jr" aria-pressed="'+(!!S.jr)+'">'+(S.jr?'Включено':'Выключено')+'</button></div>'+
        '<div class="switch"><span>Вход по отпечатку</span><button class="chipbtn" data-act="bio" aria-pressed="'+(!!S.bio)+'">'+(S.bio?'Включено':'Выключено')+'</button></div>'+
        '<button class="btn" data-act="perms">Настройки разрешений Android</button>':'')+
      '<button class="btn" data-act="export">Сохранить резервную копию</button>'+
@@ -483,7 +497,7 @@ document.addEventListener('click',function(e){
     if(wiz.i<2){wiz.i++;render();var inp=$('#ans');if(inp)inp.focus();}
     else{var r2=rec(d);r2[wiz.sess]=wiz.ans.slice(0,3);wiz.ans=[];wiz.i=0;var before=sessions()-1;
       if(wiz.sess==='e'&&!r2.mentor){r2.mentor=mentor(r2.e.join(' '));}
-      save();render();toast('Записано. Открыт ещё один кубик мозаики');}
+      save();if(NATIVE&&NATIVE.markAnswered)NATIVE.markAnswered(wiz.sess,d);render();toast('Записано. Открыт ещё один кубик мозаики');}
   }
   else if(a==='mentor'){var r3=rec(d);r3.mentor=mentor(entryText(r3).concat(r3.m||[],r3.e||[]).join(' '));save();render();}
   else if(a==='eedit'){var r4=rec(d);viewDiary.edit=true;viewDiary.draft=r4.entry?{s:r4.entry.s,a:r4.entry.a,c:r4.entry.c}:null;render();}
@@ -499,6 +513,8 @@ document.addEventListener('click',function(e){
   else if(a==='bio'){if(S.bio){S.bio=false;save();modal('settings');}else if(NATIVE.hasPermission('biometric')){nCbs.auth=function(v){if(v===true){S.bio=true;save();toast('Вход по отпечатку включён');}modal('settings');};NATIVE.authenticate('Подтвердите отпечаток');}else toast('На телефоне не настроен отпечаток или лицо');}
   else if(a==='perms'){NATIVE.openAppSettings();}
   else if(a==='export'){exportData();}
+  else if(a==='pinw'){widgetSync();var ok=false;try{ok=NATIVE.requestPinWidget();}catch(e){}
+    if(!ok)toast('Зажмите пустое место на главном экране → Виджеты → Imast');}
   else if(a==='unlock'){unlock();}
   else if(a==='notify'){var h2=S.habits.filter(function(x){return x.id===t.dataset.id;})[0];if(!h2)return;
     if(h2.notify){h2.notify=false;habitOff(h2.id);save();render();}
@@ -508,10 +524,10 @@ document.addEventListener('click',function(e){
   else if(a==='permyes'){var hh=S.habits.filter(function(x){return x.id===modal.pending;})[0];closeModal();
     nPerm('notifications',function(ok){if(!ok){toast('Уведомления запрещены в настройках Android');return;}S.perm='granted';if(hh){hh.notify=true;habitOn(hh);}save();render();toast(NATIVE?'Напоминание в '+(hh?hh.time:''):'Напоминание включено (имитация)');});}
   else if(a==='permno'){closeModal();}
-  else if(a==='sample'){seed();closeModal();render();toast('Загружен пример данных');}
+  else if(a==='sample'){seed();closeModal();widgetSync();render();toast('Загружен пример данных');}
   else if(a==='fresh'){S.welcome=false;save();closeModal();render();}
   else if(a==='tm'){S.timeMode=t.dataset.v;save();modal('settings');render();}
-  else if(a==='erase'){if(!modal.erase){modal.erase=true;modal('settings');}else{S.habits.forEach(function(x){habitOff(x.id);});S=blank();S.welcome=false;S.sample=false;journalSync();modal.erase=false;save();wiz={sess:'m',i:0,ans:[]};closeModal();render();toast('Данные стёрты');}}
+  else if(a==='erase'){if(!modal.erase){modal.erase=true;modal('settings');}else{S.habits.forEach(function(x){habitOff(x.id);});S=blank();S.welcome=false;S.sample=false;journalSync();modal.erase=false;save();widgetSync();wiz={sess:'m',i:0,ans:[]};closeModal();render();toast('Данные стёрты');}}
   else if(a==='close'){closeModal();}
 });
 document.addEventListener('input',function(e){
@@ -535,11 +551,16 @@ document.addEventListener('submit',function(e){
     viewHabits.form=false;save();render();toast('Привычка добавлена');}
 });
 window.addEventListener('hashchange',render);
+document.addEventListener('change',function(e){var t=e.target;if(t&&(t.id==='wmT'||t.id==='weT')&&t.value){
+  if(t.id==='wmT')S.wm=t.value;else S.we=t.value;save();widgetSync();journalSync();toast('Время сохранено');modal('settings');return;}});
 document.addEventListener('change',function(e){if(!e.target||e.target.id!=='importf'||!e.target.files[0])return;var fr=new FileReader();
   fr.onload=function(){try{var d=JSON.parse(fr.result);if(!d||typeof d.days!=='object')throw 0;S.habits.forEach(function(x){habitOff(x.id);});S=d;S.welcome=false;save();
-    S.habits.forEach(function(x){if(x.notify)habitOn(x);});journalSync();closeModal();render();toast('Данные восстановлены');}catch(err){toast('Это не похоже на копию Imast');}};
+    S.habits.forEach(function(x){if(x.notify)habitOn(x);});journalSync();widgetSync();closeModal();render();toast('Данные восстановлены');}catch(err){toast('Это не похоже на копию Imast');}};
   fr.readAsText(e.target.files[0]);});
 render();
+widgetSync();
+var L0=(NATIVE&&NATIVE.takeLaunch)?NATIVE.takeLaunch():'';
+if(L0&&!S.welcome)openSess(L0);
 if(NATIVE&&S.bio&&!S.welcome){locked=true;modal('lock');unlock();}
 })();
 </script>
