@@ -153,6 +153,16 @@ function load(){
   return blank();
 }
 var S=load();
+/* ---------- мост к телефону (есть только внутри APK) ---------- */
+var NATIVE=window.ImastNative||null, nCbs={}, locked=false;
+window.ImastNativeCallback=function(t,v){var f=nCbs[t];if(f){delete nCbs[t];f(v);}};
+function nPerm(name,fn){if(!NATIVE){fn(true);return;}if(NATIVE.hasPermission(name)){fn(true);return;}nCbs['permission:'+name]=fn;NATIVE.requestPermission(name);}
+function hm(t){var p=(t||'08:00').split(':');return [+p[0]||0,+p[1]||0];}
+function habitOn(h){if(!NATIVE)return;var t=hm(h.time);NATIVE.setReminder(h.id,'Imast · '+h.name,'Время для привычки',t[0],t[1],h.days.join(','));}
+function habitOff(id){if(NATIVE)NATIVE.cancelReminder(id);}
+function journalSync(){if(!NATIVE)return;if(S.jr){NATIVE.setReminder('journal-m','Imast · утро','Три вопроса на день ждут вас',8,0,'');NATIVE.setReminder('journal-e','Imast · вечер','Подведите итоги дня',20,30,'');}else{NATIVE.cancelReminder('journal-m');NATIVE.cancelReminder('journal-e');}}
+function unlock(){NATIVE.authenticate('Вход в Imast');nCbs.auth=function(v){if(v===true){locked=false;closeModal();render();}else if(v==='unavailable'){locked=false;S.bio=false;save();closeModal();render();toast('Отпечаток недоступен, вход по нему выключен');}};}
+function exportData(){var txt=JSON.stringify(S);if(NATIVE)NATIVE.shareText(txt,'Imast — резервная копия '+today());else{var bl=new Blob([txt],{type:'application/json'}),u=URL.createObjectURL(bl),ln=document.createElement('a');ln.href=u;ln.download='imast-'+today()+'.json';document.body.appendChild(ln);ln.click();ln.remove();setTimeout(function(){URL.revokeObjectURL(u);},1000);toast('Копия сохранена файлом');}}
 function save(){var s=JSON.stringify(S); mem=s; try{localStorage.setItem(KEY,s);}catch(e){}}
 
 /* ---------- утилиты ---------- */
@@ -348,7 +358,8 @@ function viewHabits(){
     var cnt=Object.keys(h.checks).length;
     return '<div class="card habit"><div class="habit-head"><div><div class="habit-name">'+esc(h.name)+'</div><div class="muted small">в '+esc(h.time)+' · с '+esc(h.start.split('-').reverse().join('.'))+' · отметок: '+cnt+'</div></div>'+
       '<button class="btn ghost small" data-act="delhabit" data-id="'+h.id+'" aria-label="Удалить привычку">Удалить</button></div>'+dayChips(h)+
-      '<div class="switch"><span>Будильник и событие в календаре</span><button class="chipbtn" data-act="notify" data-id="'+h.id+'" aria-pressed="'+(!!h.notify)+'">'+(h.notify?'Включено':'Выключено')+'</button></div>'+
+      '<div class="switch"><span>'+(NATIVE?'Напоминание':'Будильник и событие в календаре')+'</span><button class="chipbtn" data-act="notify" data-id="'+h.id+'" aria-pressed="'+(!!h.notify)+'">'+(h.notify?'Включено':'Выключено')+'</button></div>'+
+      (NATIVE?'<div class="row"><button class="btn ghost small" data-act="hcal" data-id="'+h.id+'">В календарь</button><button class="btn ghost small" data-act="halarm" data-id="'+h.id+'">Будильник</button></div>':'')+
       '<button class="btn '+(did?'':'primary')+'" data-act="check" data-id="'+h.id+'"'+((!sched&&!did)?' disabled':'')+'>'+(did?'Отмечено сегодня ✓':(sched?'Отметить сегодня':'Сегодня не по расписанию'))+'</button></div>';
   }).join('');
   var form=viewHabits.form?
@@ -404,21 +415,28 @@ function modal(kind){
   var h='';
   if(kind==='welcome'){
     h='<div class="sheet" role="dialog" aria-modal="true" aria-label="Добро пожаловать"><h2>Imast</h2><p class="caption">Imast не будет думать за вас и не лекарство от болезней. Это карта троп, оставленных великими мыслителями.</p><p class="muted small">Демо первых двух месяцев работы: дневник стоика, мозаика и привычки.</p>'+
-     '<ul class="plain"><li>Данные хранятся только в этом браузере, ничего не отправляется.</li><li>Комментарии наставника заготовлены заранее.</li><li>Будильники в демо имитируются.</li></ul>'+
+     '<ul class="plain"><li>Данные хранятся только в этом браузере, ничего не отправляется.</li><li>Комментарии наставника заготовлены заранее.</li>'+(NATIVE?'<li>Напоминания, будильник и календарь работают по-настоящему.</li>':'<li>Будильники в демо имитируются.</li>')+'</ul>'+
      '<button class="btn primary" data-act="sample">Посмотреть с примером за 3 недели</button><button class="btn" data-act="fresh">Начать с нуля</button></div>';
   }else if(kind==='settings'){
     h='<div class="sheet" role="dialog" aria-modal="true" aria-label="Данные и настройки демо"><h2>Данные демо</h2>'+
      '<p class="small muted">Всё хранится только в этом браузере. Аккаунтов и серверов в демо нет.</p>'+
      '<div><div class="muted small" style="margin-bottom:6px">Время суток для проверки</div><div class="seg" style="grid-template-columns:repeat(3,1fr)">'+
        [['auto','Авто'],['m','Утро'],['e','Вечер']].map(function(x){return '<button data-act="tm" data-v="'+x[0]+'" aria-pressed="'+(S.timeMode===x[0])+'">'+x[1]+'</button>';}).join('')+'</div></div>'+
+     (NATIVE?'<div class="switch"><span>Напоминать о дневнике (8:00 и 20:30)</span><button class="chipbtn" data-act="jr" aria-pressed="'+(!!S.jr)+'">'+(S.jr?'Включено':'Выключено')+'</button></div>'+
+       '<div class="switch"><span>Вход по отпечатку</span><button class="chipbtn" data-act="bio" aria-pressed="'+(!!S.bio)+'">'+(S.bio?'Включено':'Выключено')+'</button></div>'+
+       '<button class="btn" data-act="perms">Настройки разрешений Android</button>':'')+
+     '<button class="btn" data-act="export">Сохранить резервную копию</button>'+
+     '<label class="btn" for="importf" style="text-align:center">Восстановить из копии<input type="file" id="importf" accept=".txt,.json,text/plain,application/json" hidden></label>'+
      '<button class="btn" data-act="sample">Загрузить пример за 3 недели</button>'+
      '<button class="btn" data-act="erase">'+(modal.erase?'Точно стереть всё?':'Стереть все данные')+'</button>'+
      '<button class="btn primary" data-act="close">Закрыть</button></div>';
+  }else if(kind==='lock'){
+    h='<div class="sheet" role="dialog" aria-modal="true" aria-label="Вход"><h2>Imast</h2><p class="muted small">Дневник защищён отпечатком.</p><button class="btn primary" data-act="unlock">Войти</button></div>';
   }else if(kind==='perm'){
-    h='<div class="sheet" role="dialog" aria-modal="true" aria-label="Разрешение"><h2>Напоминания</h2><p>Imast просит разрешение поставить будильник и событие в календаре для этой привычки.</p><p class="muted small">В демо это имитация: на вашем устройстве ничего не создаётся. В приложении для Android разрешение запрашивает система.</p>'+
+    h='<div class="sheet" role="dialog" aria-modal="true" aria-label="Разрешение"><h2>Напоминания</h2><p>'+(NATIVE?'Imast будет присылать уведомление в выбранное время и дни.':'Imast просит разрешение поставить будильник и событие в календаре для этой привычки.')+'</p>'+(NATIVE?'<p class="muted small">Сейчас Android спросит разрешение на уведомления. Отозвать его можно в настройках телефона.</p>':'<p class="muted small">В демо это имитация: на вашем устройстве ничего не создаётся. В приложении для Android разрешение запрашивает система.</p>')+''+
      '<button class="btn primary" data-act="permyes">Разрешить</button><button class="btn" data-act="permno">Не сейчас</button></div>';
   }
-  $('#modal').innerHTML='<div class="overlay">'+h+'</div>';
+  $('#modal').innerHTML='<div class="overlay"'+(kind==='lock'?' style="background:#0E1526"':'')+'>'+h+'</div>';
   var b=$('#modal .btn');if(b)b.focus();
 }
 
@@ -473,17 +491,27 @@ document.addEventListener('click',function(e){
   else if(a==='hcancel'){viewHabits.form=false;render();}
   else if(a==='wday'){var k=+t.dataset.v,ix=viewHabits.days.indexOf(k);if(ix>=0)viewHabits.days.splice(ix,1);else viewHabits.days.push(k);t.setAttribute('aria-pressed',ix<0);}
   else if(a==='check'){var h=S.habits.filter(function(x){return x.id===t.dataset.id;})[0];if(h){if(h.checks[d])delete h.checks[d];else h.checks[d]=true;save();render();}}
-  else if(a==='delhabit'){S.habits=S.habits.filter(function(x){return x.id!==t.dataset.id;});save();render();}
+  else if(a==='delhabit'){habitOff(t.dataset.id);S.habits=S.habits.filter(function(x){return x.id!==t.dataset.id;});save();render();}
+  else if(a==='hcal'||a==='halarm'){var hx=S.habits.filter(function(x){return x.id===t.dataset.id;})[0];if(hx&&NATIVE){var tt=hm(hx.time);
+    if(a==='hcal')NATIVE.addCalendarEvent('Imast · '+hx.name,'Привычка из Imast',hx.start,tt[0],tt[1],30,hx.days.join(','));
+    else NATIVE.setAlarmClock(tt[0],tt[1],'Imast · '+hx.name,hx.days.join(','));}}
+  else if(a==='jr'){if(S.jr){S.jr=false;journalSync();save();modal('settings');}else{nPerm('notifications',function(ok){if(ok){S.jr=true;journalSync();save();toast('Напоминания о дневнике включены');}else toast('Уведомления запрещены в настройках Android');modal('settings');});}}
+  else if(a==='bio'){if(S.bio){S.bio=false;save();modal('settings');}else if(NATIVE.hasPermission('biometric')){nCbs.auth=function(v){if(v===true){S.bio=true;save();toast('Вход по отпечатку включён');}modal('settings');};NATIVE.authenticate('Подтвердите отпечаток');}else toast('На телефоне не настроен отпечаток или лицо');}
+  else if(a==='perms'){NATIVE.openAppSettings();}
+  else if(a==='export'){exportData();}
+  else if(a==='unlock'){unlock();}
   else if(a==='notify'){var h2=S.habits.filter(function(x){return x.id===t.dataset.id;})[0];if(!h2)return;
-    if(h2.notify){h2.notify=false;save();render();}
-    else if(S.perm==='granted'){h2.notify=true;save();render();toast('Напоминание включено (имитация)');}
+    if(h2.notify){h2.notify=false;habitOff(h2.id);save();render();}
+    else if(NATIVE&&NATIVE.hasPermission('notifications')){h2.notify=true;habitOn(h2);save();render();toast('Напоминание в '+h2.time);}
+    else if(!NATIVE&&S.perm==='granted'){h2.notify=true;save();render();toast('Напоминание включено (имитация)');}
     else{modal.pending=h2.id;modal('perm');}}
-  else if(a==='permyes'){S.perm='granted';var hh=S.habits.filter(function(x){return x.id===modal.pending;})[0];if(hh)hh.notify=true;save();closeModal();render();toast('Напоминание включено (имитация)');}
+  else if(a==='permyes'){var hh=S.habits.filter(function(x){return x.id===modal.pending;})[0];closeModal();
+    nPerm('notifications',function(ok){if(!ok){toast('Уведомления запрещены в настройках Android');return;}S.perm='granted';if(hh){hh.notify=true;habitOn(hh);}save();render();toast(NATIVE?'Напоминание в '+(hh?hh.time:''):'Напоминание включено (имитация)');});}
   else if(a==='permno'){closeModal();}
   else if(a==='sample'){seed();closeModal();render();toast('Загружен пример данных');}
   else if(a==='fresh'){S.welcome=false;save();closeModal();render();}
   else if(a==='tm'){S.timeMode=t.dataset.v;save();modal('settings');render();}
-  else if(a==='erase'){if(!modal.erase){modal.erase=true;modal('settings');}else{S=blank();S.welcome=false;S.sample=false;modal.erase=false;save();wiz={sess:'m',i:0,ans:[]};closeModal();render();toast('Данные стёрты');}}
+  else if(a==='erase'){if(!modal.erase){modal.erase=true;modal('settings');}else{S.habits.forEach(function(x){habitOff(x.id);});S=blank();S.welcome=false;S.sample=false;journalSync();modal.erase=false;save();wiz={sess:'m',i:0,ans:[]};closeModal();render();toast('Данные стёрты');}}
   else if(a==='close'){closeModal();}
 });
 document.addEventListener('input',function(e){
@@ -492,7 +520,7 @@ document.addEventListener('input',function(e){
 });
 document.addEventListener('keydown',function(e){
   if(e.key==='Enter'&&e.target.id==='ans'){e.preventDefault();var b=$('#go');if(b&&!b.disabled)b.click();}
-  if(e.key==='Escape'&&$('#modal').firstChild&&!S.welcome)closeModal();
+  if(e.key==='Escape'&&$('#modal').firstChild&&!S.welcome&&!locked)closeModal();
 });
 document.addEventListener('submit',function(e){
   if(e.target.id==='eform'){e.preventDefault();
@@ -507,7 +535,12 @@ document.addEventListener('submit',function(e){
     viewHabits.form=false;save();render();toast('Привычка добавлена');}
 });
 window.addEventListener('hashchange',render);
+document.addEventListener('change',function(e){if(!e.target||e.target.id!=='importf'||!e.target.files[0])return;var fr=new FileReader();
+  fr.onload=function(){try{var d=JSON.parse(fr.result);if(!d||typeof d.days!=='object')throw 0;S.habits.forEach(function(x){habitOff(x.id);});S=d;S.welcome=false;save();
+    S.habits.forEach(function(x){if(x.notify)habitOn(x);});journalSync();closeModal();render();toast('Данные восстановлены');}catch(err){toast('Это не похоже на копию Imast');}};
+  fr.readAsText(e.target.files[0]);});
 render();
+if(NATIVE&&S.bio&&!S.welcome){locked=true;modal('lock');unlock();}
 })();
 </script>
 

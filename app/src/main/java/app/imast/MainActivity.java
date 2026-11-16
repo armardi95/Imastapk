@@ -2,8 +2,15 @@ package app.imast;
 
 import android.app.Activity;
 import android.content.Intent;
+import android.content.pm.PackageManager;
+import android.hardware.biometrics.BiometricManager;
+import android.hardware.biometrics.BiometricPrompt;
 import android.net.Uri;
+import android.os.Build;
 import android.os.Bundle;
+import android.os.CancellationSignal;
+import android.webkit.ValueCallback;
+import android.webkit.WebChromeClient;
 import android.webkit.WebResourceError;
 import android.webkit.WebResourceRequest;
 import android.webkit.WebResourceResponse;
@@ -19,8 +26,13 @@ public class MainActivity extends Activity {
     // Копия внутри APK: открывается, если нет интернета и нет сохранённой версии
     private static final String LOCAL_URL = "file:///android_asset/index.html";
 
+    private static final int REQ_PERMS = 10;
+    private static final int REQ_FILE = 11;
+
     private WebView web;
     private boolean fellBack = false;
+    private String pendingPermission;
+    private ValueCallback<Uri[]> fileCallback;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -34,7 +46,9 @@ public class MainActivity extends Activity {
         s.setAllowContentAccess(false);
         s.setCacheMode(WebSettings.LOAD_DEFAULT);
 
+        web.addJavascriptInterface(new NativeBridge(this), "ImastNative");
         web.setBackgroundColor(0xFF0E1526);
+
         web.setWebViewClient(new WebViewClient() {
             @Override
             public boolean shouldOverrideUrlLoading(WebView view, WebResourceRequest request) {
@@ -42,7 +56,9 @@ public class MainActivity extends Activity {
                 if ("file".equals(u.getScheme()) || ONLINE_HOST.equals(u.getHost())) {
                     return false;           // свои страницы открываем внутри приложения
                 }
-                startActivity(new Intent(Intent.ACTION_VIEW, u)); // внешние ссылки в браузере
+                try {
+                    startActivity(new Intent(Intent.ACTION_VIEW, u)); // внешние ссылки в браузере
+                } catch (Exception ignored) {}
                 return true;
             }
 
@@ -57,7 +73,6 @@ public class MainActivity extends Activity {
 
             @Override
             public void onReceivedHttpError(WebView view, WebResourceRequest request, WebResourceResponse response) {
-                // Страница ещё не опубликована (ошибка 404 и т. п.) — тоже открываем встроенную
                 if (request.isForMainFrame() && !fellBack) {
                     fellBack = true;
                     view.loadUrl(LOCAL_URL);
@@ -65,11 +80,94 @@ public class MainActivity extends Activity {
             }
         });
 
+        // Выбор файла (например, восстановление резервной копии)
+        web.setWebChromeClient(new WebChromeClient() {
+            @Override
+            public boolean onShowFileChooser(WebView v, ValueCallback<Uri[]> cb, FileChooserParams params) {
+                if (fileCallback != null) fileCallback.onReceiveValue(null);
+                fileCallback = cb;
+                try {
+                    startActivityForResult(params.createIntent(), REQ_FILE);
+                } catch (Exception e) {
+                    fileCallback = null;
+                    return false;
+                }
+                return true;
+            }
+        });
+
+        Reminders.ensureChannel(this);
+        Reminders.rescheduleAll(this);
+
         if (savedInstanceState == null) {
             web.loadUrl(ONLINE_URL);
         } else {
             web.restoreState(savedInstanceState);
         }
+    }
+
+    // ---------- для NativeBridge ----------
+
+    void callback(String type, String jsValue) {
+        final String js = "window.ImastNativeCallback&&window.ImastNativeCallback(" + quote(type) + "," + jsValue + ")";
+        runOnUiThread(() -> web.evaluateJavascript(js, null));
+    }
+
+    void askPermissions(String name, String[] perms) {
+        pendingPermission = name;
+        requestPermissions(perms, REQ_PERMS);
+    }
+
+    boolean biometricAvailable() {
+        if (Build.VERSION.SDK_INT >= 29) {
+            BiometricManager bm = getSystemService(BiometricManager.class);
+            return bm != null && bm.canAuthenticate() == BiometricManager.BIOMETRIC_SUCCESS;
+        }
+        return Build.VERSION.SDK_INT >= 28
+                && getPackageManager().hasSystemFeature(PackageManager.FEATURE_FINGERPRINT);
+    }
+
+    void authenticate(String title) {
+        if (Build.VERSION.SDK_INT < 28 || !biometricAvailable()) {
+            callback("auth", "'unavailable'");
+            return;
+        }
+        BiometricPrompt p = new BiometricPrompt.Builder(this)
+                .setTitle(title == null || title.isEmpty() ? "Вход в Imast" : title)
+                .setNegativeButton("Отмена", getMainExecutor(), (d, w) -> callback("auth", "false"))
+                .build();
+        p.authenticate(new CancellationSignal(), getMainExecutor(), new BiometricPrompt.AuthenticationCallback() {
+            @Override public void onAuthenticationSucceeded(BiometricPrompt.AuthenticationResult r) { callback("auth", "true"); }
+            @Override public void onAuthenticationError(int code, CharSequence msg) { callback("auth", "false"); }
+        });
+    }
+
+    // ---------- системные события ----------
+
+    @Override
+    public void onRequestPermissionsResult(int code, String[] perms, int[] results) {
+        super.onRequestPermissionsResult(code, perms, results);
+        if (code != REQ_PERMS || pendingPermission == null) return;
+        boolean ok = results.length > 0;
+        for (int r : results) ok &= r == PackageManager.PERMISSION_GRANTED;
+        callback("permission:" + pendingPermission, ok ? "true" : "false");
+        pendingPermission = null;
+    }
+
+    @Override
+    protected void onActivityResult(int code, int result, Intent data) {
+        super.onActivityResult(code, result, data);
+        if (code == REQ_FILE && fileCallback != null) {
+            fileCallback.onReceiveValue(WebChromeClient.FileChooserParams.parseResult(result, data));
+            fileCallback = null;
+        }
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        // после возврата из системных настроек страница может перепроверить разрешения
+        if (web != null) callback("resume", "true");
     }
 
     @Override
@@ -85,5 +183,9 @@ public class MainActivity extends Activity {
         } else {
             super.onBackPressed();
         }
+    }
+
+    private static String quote(String s) {
+        return "'" + s.replace("\\", "\\\\").replace("'", "\\'") + "'";
     }
 }
