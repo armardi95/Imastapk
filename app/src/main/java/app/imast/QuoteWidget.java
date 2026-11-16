@@ -116,6 +116,7 @@ public class QuoteWidget extends AppWidgetProvider {
             v.setTextViewText(R.id.author, "до " + hhmm(sess.equals("m") ? wm + WINDOW_MIN : we + WINDOW_MIN));
             v.setViewVisibility(R.id.like, View.GONE);
             v.setViewVisibility(R.id.dislike, View.GONE);
+            v.setViewVisibility(R.id.next, View.GONE);
             v.setViewVisibility(R.id.answer, View.VISIBLE);
 
             Intent ans = new Intent(c, MainActivity.class)
@@ -141,6 +142,7 @@ public class QuoteWidget extends AppWidgetProvider {
             v.setTextViewText(R.id.author, "Imast");
             v.setViewVisibility(R.id.like, View.GONE);
             v.setViewVisibility(R.id.dislike, View.GONE);
+            v.setViewVisibility(R.id.next, View.GONE);
             v.setOnClickPendingIntent(R.id.text, openPi);
             v.setOnClickPendingIntent(R.id.author, openPi);
             return v;
@@ -161,12 +163,14 @@ public class QuoteWidget extends AppWidgetProvider {
         int vote = votes(p).optInt(String.valueOf(idx), 0);
         v.setViewVisibility(R.id.like, View.VISIBLE);
         v.setViewVisibility(R.id.dislike, View.VISIBLE);
+        v.setViewVisibility(R.id.next, n > 1 ? View.VISIBLE : View.GONE);
         v.setInt(R.id.like, "setBackgroundColor", vote == 1 ? 0x33C9A24A : 0x00000000);
         v.setInt(R.id.dislike, "setBackgroundColor", vote == -1 ? 0x33C9A24A : 0x00000000);
         v.setTextColor(R.id.like, vote == -1 ? DIM : GOLD);
         v.setTextColor(R.id.dislike, vote == 1 ? DIM : GOLD);
 
         v.setOnClickPendingIntent(R.id.text, self(c, A_NEXT, 1));
+        v.setOnClickPendingIntent(R.id.next, self(c, A_NEXT, 4));
         v.setOnClickPendingIntent(R.id.like, self(c, A_LIKE, 2));
         v.setOnClickPendingIntent(R.id.dislike, self(c, A_DISLIKE, 3));
         v.setOnClickPendingIntent(R.id.author, openPi);

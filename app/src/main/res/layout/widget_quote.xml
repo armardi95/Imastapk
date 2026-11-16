@@ -72,6 +72,21 @@
             android:textSize="17sp" />
 
         <TextView
+            android:id="@+id/next"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="8dp"
+            android:background="@drawable/widget_btn"
+            android:paddingStart="14dp"
+            android:paddingTop="6dp"
+            android:paddingEnd="14dp"
+            android:paddingBottom="6dp"
+            android:text="Далее"
+            android:textColor="#0E1526"
+            android:textSize="13sp"
+            android:textStyle="bold" />
+
+        <TextView
             android:id="@+id/answer"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
