@@ -432,11 +432,13 @@ function modal(kind){
      '<p class="small muted">Всё хранится только в этом браузере. Аккаунтов и серверов в демо нет.</p>'+
      '<div><div class="muted small" style="margin-bottom:6px">Время суток для проверки</div><div class="seg" style="grid-template-columns:repeat(3,1fr)">'+
        [['auto','Авто'],['m','Утро'],['e','Вечер']].map(function(x){return '<button data-act="tm" data-v="'+x[0]+'" aria-pressed="'+(S.timeMode===x[0])+'">'+x[1]+'</button>';}).join('')+'</div></div>'+
-     (NATIVE?'<div class="card" style="margin:0"><h3>Виджет</h3><p class="muted small">Утром и вечером на час виджет показывает вопросы вместо цитаты.</p>'+
+     (NATIVE?'<p class="muted small">Версия приложения: '+esc((NATIVE.version&&NATIVE.version())||'1.0')+'</p>':'')+
+     (NATIVE&&!NATIVE.setWidgetData?'<div class="card" style="margin:0"><h3>Виджет</h3><p class="small">Виджет есть только в приложении версии 1.3 и новее. Скачайте свежий APK из GitHub Actions и установите поверх этого.</p></div>':'')+
+     (NATIVE&&NATIVE.setWidgetData?'<div class="card" style="margin:0"><h3>Виджет</h3><p class="muted small">Утром и вечером на час виджет показывает вопросы вместо цитаты.</p>'+
        '<label for="wmT">Утренние вопросы с<input type="time" id="wmT" value="'+wmT()+'"></label>'+
        '<label for="weT">Вечерние вопросы с<input type="time" id="weT" value="'+weT()+'"></label>'+
-       '<button class="btn" data-act="pinw">Добавить виджет на экран</button></div>'+
-       '<div class="switch"><span>Напоминать о дневнике ('+wmT()+' и '+weT()+')</span><button class="chipbtn" data-act="jr" aria-pressed="'+(!!S.jr)+'">'+(S.jr?'Включено':'Выключено')+'</button></div>'+
+       '<button class="btn" data-act="pinw">Добавить виджет на экран</button></div>':'')+
+     (NATIVE?'<div class="switch"><span>Напоминать о дневнике ('+wmT()+' и '+weT()+')</span><button class="chipbtn" data-act="jr" aria-pressed="'+(!!S.jr)+'">'+(S.jr?'Включено':'Выключено')+'</button></div>'+
        '<div class="switch"><span>Вход по отпечатку</span><button class="chipbtn" data-act="bio" aria-pressed="'+(!!S.bio)+'">'+(S.bio?'Включено':'Выключено')+'</button></div>'+
        '<button class="btn" data-act="perms">Настройки разрешений Android</button>':'')+
      '<button class="btn" data-act="export">Сохранить резервную копию</button>'+
