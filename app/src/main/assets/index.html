@@ -55,7 +55,9 @@ p{margin:0}
 .hint{display:flex;gap:10px;align-items:flex-start;background:var(--surface2);border-radius:12px;padding:12px 14px;font-size:15px}
 .qmark{flex:none;width:28px;height:28px;border-radius:50%;border:1.5px solid var(--gold);color:var(--gold-ink);background:transparent;font-weight:700;font-size:15px;display:grid;place-items:center;padding:0}
 .seg{display:grid;grid-template-columns:1fr 1fr;gap:4px;background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:4px}
-.seg button{border:0;background:transparent;border-radius:9px;padding:10px;font-weight:600;color:var(--muted)}
+.seg button{border:0;background:transparent;border-radius:9px;padding:10px 4px;font-weight:600;color:var(--muted);min-width:0;overflow:hidden;text-overflow:ellipsis}
+.seg.s3 button{font-size:13.5px}
+@media (max-width:360px){.seg.s3{gap:2px;padding:3px}.seg.s3 button{font-size:11.5px;padding:10px 1px}}
 .seg button[aria-pressed="true"]{background:var(--surface2);color:var(--gold-ink)}
 .stepper{display:flex;justify-content:space-between;align-items:center}
 .step{font-size:14px;font-weight:600;color:var(--gold-ink)}
@@ -71,7 +73,7 @@ p{margin:0}
 .mentor.safe{border-left-color:var(--warn)}
 .mosaic{position:relative;border-radius:14px;overflow:hidden;aspect-ratio:4/3;border:1px solid var(--line);background:var(--cover)}
 .mosaic svg.portrait{position:absolute;inset:0;width:100%;height:100%;display:block}
-.tiles{position:absolute;inset:0;display:grid;grid-template-columns:repeat(8,1fr);grid-template-rows:repeat(6,1fr)}
+.tiles{position:absolute;inset:0;display:grid;grid-template-columns:repeat(10,1fr);grid-template-rows:repeat(9,1fr)}
 .tile{background:var(--cover);outline:1px solid var(--cover-line);outline-offset:-0.5px;transition:opacity .6s}
 .tile.open{opacity:0;pointer-events:none}
 .bar{height:10px;border-radius:99px;background:var(--surface2);overflow:hidden}
@@ -119,6 +121,75 @@ nav.tabs .inner{max-width:520px;margin:0 auto;display:grid;grid-template-columns
 .toast{position:fixed;left:50%;bottom:calc(84px + env(safe-area-inset-bottom,0px));transform:translateX(-50%);background:var(--surface2);border:1px solid var(--gold);color:var(--fg);padding:10px 16px;border-radius:12px;font-size:14px;z-index:30;max-width:calc(100vw - 32px)}
 ul.plain{margin:0;padding-left:20px;display:flex;flex-direction:column;gap:6px;font-size:15px}
 @media (prefers-reduced-motion: reduce){.tile{transition:none}}
+/* заставка */
+#splash{position:fixed;inset:0;z-index:50;background:#0E1526;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:22px;padding:32px max(24px,env(safe-area-inset-right,0px)) 32px max(24px,env(safe-area-inset-left,0px));text-align:center;transition:opacity .5s}
+#splash svg{width:120px;height:108px;fill:#D4AE5A}
+#splash .sp-name{font-family:var(--display);font-weight:700;font-size:44px;color:#F4E4B0;line-height:1}
+#splash .sp-phrase{font-family:var(--display);font-style:italic;font-size:24px;line-height:1.35;color:#EDE8DC;max-width:420px;opacity:0;transition:opacity .6s}
+#splash.show-phrase .sp-phrase{opacity:1}
+#splash.hide{opacity:0;pointer-events:none}
+@media (prefers-reduced-motion: reduce){#splash,#splash .sp-phrase{transition:none}}
+/* код входа */
+.pin-dots{display:flex;gap:14px;justify-content:center;margin:6px 0}
+.pin-dots i{width:16px;height:16px;border-radius:50%;border:2px solid var(--gold)}
+.pin-dots i.on{background:var(--gold)}
+.pin-msg{min-height:20px;text-align:center;font-size:14px;color:var(--warn)}
+.keypad{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;max-width:300px;margin:0 auto;width:100%}
+.keypad button{height:58px;border-radius:14px;border:1px solid var(--line);background:var(--surface2);font-size:24px;font-weight:600;font-variant-numeric:tabular-nums}
+.keypad button.kp-ghost{background:transparent;font-size:15px}
+.linkbtn{border:0;background:transparent;color:var(--muted);text-decoration:underline;font-size:14px;padding:8px}
+/* баннер копии */
+.banner{display:flex;flex-direction:column;gap:10px;border:1px solid var(--gold);border-radius:14px;padding:14px 16px;background:var(--surface)}
+/* обучение */
+.blk{display:flex;align-items:center;justify-content:space-between;gap:12px}
+.blk .bt{display:flex;flex-direction:column;gap:2px;min-width:0}
+.blk .bn{font-weight:600;font-size:17px}
+.state{font-size:12px;font-weight:600;padding:4px 10px;border-radius:99px;border:1px solid var(--line);color:var(--muted);white-space:nowrap}
+.state.ok{color:var(--on-gold);background:var(--gold);border-color:var(--gold)}
+.lsec{display:flex;flex-direction:column;gap:6px}
+.lsec p{font-size:16px;line-height:1.55}
+.term{display:flex;flex-direction:column;gap:2px;padding:10px 12px;border-radius:10px;background:var(--surface2)}
+.term b{font-family:var(--display);font-size:20px;color:var(--gold-ink);font-weight:600}
+.opt{width:100%;text-align:left;border:1px solid var(--line);background:var(--surface2);border-radius:12px;padding:12px 14px;font-size:15px;min-height:48px}
+.opt.right{border-color:var(--ok);box-shadow:inset 0 0 0 1px var(--ok)}
+.opt.wrong{border-color:var(--warn);box-shadow:inset 0 0 0 1px var(--warn)}
+.opt[disabled]{cursor:default}
+.verdict{font-weight:600}
+.verdict.ok{color:var(--ok)}.verdict.no{color:var(--warn)}
+/* задачи и доска */
+.tasktabs{display:flex;gap:8px;align-items:center}
+.tasktabs .scroll{display:flex;gap:8px;overflow-x:auto;flex:1;min-width:0;padding-bottom:2px}
+.plus{flex:none;width:44px;height:44px;border-radius:50%;border:1px solid var(--gold);background:var(--gold);color:var(--on-gold);font-size:26px;line-height:1;display:grid;place-items:center;padding:0}
+.board-wrap{position:relative;height:62vh;min-height:360px;overflow:auto;border:1px solid var(--line);border-radius:16px;background:#0B1120;touch-action:pan-x pan-y;-webkit-overflow-scrolling:touch}
+.board{position:relative;transform-origin:0 0}
+.board svg.threads{position:absolute;inset:0;overflow:visible}
+.bc{position:absolute;display:flex;flex-direction:column;justify-content:center;gap:2px;padding:8px 10px;border-radius:6px;background:#EDE3CC;color:#1B1F2A;box-shadow:0 2px 8px rgba(0,0,0,.45);font-size:13px;line-height:1.25;text-align:left;border:1px solid #CDBF9F;overflow:hidden}
+.bc .ttl{display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden}
+.bc .bd{font-size:11px;color:#6B5A3A;flex:none}
+.bc.center{background:#F4E4B0;border:2px solid #D4AE5A;font-family:var(--display);font-size:18px;font-weight:700;text-align:center;align-items:center}
+.bc.block{background:#E4D6B4;font-weight:700}
+.bc.done{border:2px solid #D4AE5A}
+.bc.done .ttl::before{content:'✓ ';color:#8A6417;font-weight:700}
+.bc.locked{opacity:.45}
+.bc.due{box-shadow:0 0 0 2px #E39A8F,0 2px 8px rgba(0,0,0,.45)}
+.pin-tack{position:absolute;top:-4px;left:50%;width:9px;height:9px;margin-left:-4px;border-radius:50%;background:#D4AE5A;box-shadow:0 1px 2px rgba(0,0,0,.6)}
+.zoom{position:sticky;left:calc(100% - 52px);top:10px;width:40px;display:flex;flex-direction:column;gap:6px;z-index:3;float:right;margin:10px 10px -96px 0}
+.zoom button{width:40px;height:40px;border-radius:10px;border:1px solid var(--line);background:var(--surface);font-size:20px;font-weight:700}
+.steprow{display:flex;gap:10px;align-items:flex-start;padding:10px 0;border-top:1px solid var(--line)}
+.steprow:first-child{border-top:0}
+.chk{flex:none;width:30px;height:30px;border-radius:8px;border:1.5px solid var(--gold);background:transparent;color:var(--on-gold);font-weight:700;padding:0;display:grid;place-items:center}
+.chk[aria-pressed="true"]{background:var(--gold)}
+.chk[disabled]{opacity:.4;cursor:not-allowed}
+.edblock{display:flex;flex-direction:column;gap:8px;border:1px solid var(--line);border-radius:12px;padding:12px}
+.edstep{display:grid;grid-template-columns:1fr auto;gap:6px;align-items:center}
+.edstep .when{display:flex;gap:6px;grid-column:1 / -1}
+.edstep input,.edblock input,.form select{width:100%;background:var(--bg);color:var(--fg);border:1px solid var(--line);border-radius:10px;padding:10px;font:inherit;font-size:15px;min-width:0}
+.xbtn{border:1px solid var(--line);background:transparent;border-radius:10px;width:40px;height:40px;color:var(--muted);font-size:18px;padding:0}
+.entry-item{display:flex;flex-direction:column;gap:6px;padding:12px 0;border-top:1px solid var(--line)}
+.entry-item:first-of-type{border-top:0}
+button.blk[disabled]{opacity:.5;cursor:not-allowed}
+button.card{font:inherit;color:inherit;background:var(--surface)}
+.fmtname{font-size:12px;font-weight:600;letter-spacing:1px;text-transform:uppercase;color:var(--gold-ink)}
 </style>
 
 <div class="app">
@@ -139,6 +210,11 @@ ul.plain{margin:0;padding-left:20px;display:flex;flex-direction:column;gap:6px;f
 </nav>
 <div id="modal"></div>
 <div id="toast" class="toast" hidden></div>
+<div id="splash" role="presentation" hidden>
+  <svg viewBox="195 205 675 605" aria-hidden="true"><rect x="205" y="215" width="190" height="36" rx="3"/><path d="M216 251H384L360 286H240Z"/><rect x="250" y="286" width="100" height="440"/><rect x="226" y="726" width="148" height="39" rx="12"/><rect x="205" y="765" width="190" height="35" rx="2"/><path d="M250 470A170 170 0 0 1 590 470H490A70 70 0 0 0 350 470Z"/><path d="M490 470A170 170 0 0 1 830 470H730A70 70 0 0 0 590 470Z"/><rect x="474" y="470" width="132" height="26" rx="3"/><rect x="490" y="496" width="100" height="240"/><rect x="470" y="732" width="140" height="35" rx="12"/><rect x="460" y="767" width="160" height="33" rx="2"/><rect x="714" y="470" width="132" height="26" rx="3"/><rect x="730" y="496" width="100" height="240"/><rect x="710" y="732" width="140" height="35" rx="12"/><rect x="700" y="767" width="160" height="33" rx="2"/></svg>
+  <div class="sp-name">Imast</div>
+  <p class="sp-phrase">Imast не будет думать за вас и не лекарство от болезней. Это карта троп, оставленных великими мыслителями.</p>
+</div>
 
 <script>
 (function(){
@@ -146,16 +222,35 @@ ul.plain{margin:0;padding-left:20px;display:flex;flex-direction:column;gap:6px;f
 document.documentElement.setAttribute('data-theme','dark'); /* демо всегда тёмное, как презентация */
 /* ---------- данные: только в этом браузере ---------- */
 var KEY='imast-demo-v1', mem=null;
-function blank(){return {welcome:true,days:{},habits:[],timeMode:'auto',perm:null,sample:false};}
+function blank(){return {welcome:true,days:{},habits:[],timeMode:'auto',perm:null,sample:false,learn:{}};}
 function load(){
   try{var s=localStorage.getItem(KEY); if(s) return Object.assign(blank(),JSON.parse(s));}catch(e){}
   if(mem){try{return Object.assign(blank(),JSON.parse(mem));}catch(e){}}
   return blank();
 }
 var S=load();
+/* старая «Запись дня» (одна в день) переезжает в список записей */
+function migrate(){
+  for(var k in S.days){var r=S.days[k];if(!r)continue;
+    if(r.entry&&!r.entries)r.entries=[{f:'day',v:{s:r.entry.s||'',a:r.entry.a||'',c:r.entry.c||''},t:0}];
+    delete r.entry;}
+  if(!S.learn||typeof S.learn!=='object')S.learn={};
+}
+migrate();
 /* ---------- мост к телефону (есть только внутри APK) ---------- */
 var NATIVE=window.ImastNative||null, nCbs={}, locked=false;
-window.ImastNativeCallback=function(t,v){if(t==='launch'){openSess(v);return;}if(t==='resume'){widgetSync();return;}var f=nCbs[t];if(f){delete nCbs[t];f(v);}};
+/* блокировка при возврате в приложение: ext — мы сами открыли другое окно (файл, календарь, отпечаток) */
+var ext=false, pausedAt=0, ignoreResumeUntil=0;
+function goingOut(){ext=true;}
+function onPause(){pausedAt=Date.now();}
+function onResume(){
+  if(ext){ext=false;pausedAt=0;return;}
+  var away=pausedAt?Date.now()-pausedAt:0;pausedAt=0;
+  if(Date.now()<ignoreResumeUntil)return;
+  if(away>1500&&lockActive()&&!locked&&!S.welcome)lockNow();
+}
+window.ImastNativeCallback=function(t,v){if(t==='launch'){openSess(v);return;}if(t==='resume'){widgetSync();onResume();return;}if(t==='pause'){onPause();return;}var f=nCbs[t];if(f){delete nCbs[t];f(v);}};
+if(!NATIVE)document.addEventListener('visibilitychange',function(){if(document.hidden)onPause();else onResume();});
 function toMin(t){var x=hm(t);return x[0]*60+x[1];}
 function wmT(){return S.wm||'08:00';}
 function weT(){return S.we||'20:30';}
@@ -170,8 +265,57 @@ function hm(t){var p=(t||'08:00').split(':');return [+p[0]||0,+p[1]||0];}
 function habitOn(h){if(!NATIVE)return;var t=hm(h.time);NATIVE.setReminder(h.id,'Imast · '+h.name,'Время для привычки',t[0],t[1],h.days.join(','));}
 function habitOff(id){if(NATIVE)NATIVE.cancelReminder(id);}
 function journalSync(){if(!NATIVE)return;if(S.jr){var a=hm(wmT()),b=hm(weT());NATIVE.setReminder('journal-m','Imast · утро','Три вопроса на день ждут вас',a[0],a[1],'');NATIVE.setReminder('journal-e','Imast · вечер','Подведите итоги дня',b[0],b[1],'');}else{NATIVE.cancelReminder('journal-m');NATIVE.cancelReminder('journal-e');}}
-function unlock(){NATIVE.authenticate('Вход в Imast');nCbs.auth=function(v){if(v===true){locked=false;closeModal();render();}else if(v==='unavailable'){locked=false;S.bio=false;save();closeModal();render();toast('Отпечаток недоступен, вход по нему выключен');}};}
-function exportData(){var txt=JSON.stringify(S);if(NATIVE)NATIVE.shareText(txt,'Imast — резервная копия '+today());else{var bl=new Blob([txt],{type:'application/json'}),u=URL.createObjectURL(bl),ln=document.createElement('a');ln.href=u;ln.download='imast-'+today()+'.json';document.body.appendChild(ln);ln.click();ln.remove();setTimeout(function(){URL.revokeObjectURL(u);},1000);toast('Копия сохранена файлом');}}
+/* ---------- вход: код из 4 цифр и отпечаток ---------- */
+function sha256(a){function r(v,n){return(v>>>n)|(v<<(32-n));}var P=Math.pow,mw=P(2,32),res='',w=[],bl=a.length*8,h=sha256.h=sha256.h||[],k=sha256.k=sha256.k||[],pl=k.length,ic={},i,j,c;
+  for(c=2;pl<64;c++){if(!ic[c]){for(i=0;i<313;i+=c)ic[i]=c;h[pl]=(P(c,.5)*mw)|0;k[pl++]=(P(c,1/3)*mw)|0;}}
+  a+='\x80';while(a.length%64-56)a+='\x00';
+  for(i=0;i<a.length;i++){j=a.charCodeAt(i);if(j>>8)return '';w[i>>2]|=j<<((3-i)%4)*8;}
+  w[w.length]=((bl/mw)|0);w[w.length]=bl;
+  for(j=0;j<w.length;){var W=w.slice(j,j+=16),oh=h;h=h.slice(0,8);
+    for(i=0;i<64;i++){var w15=W[i-15],w2=W[i-2],a0=h[0],e=h[4],
+      t1=h[7]+(r(e,6)^r(e,11)^r(e,25))+((e&h[5])^((~e)&h[6]))+k[i]+(W[i]=(i<16)?W[i]:(W[i-16]+(r(w15,7)^r(w15,18)^(w15>>>3))+W[i-7]+(r(w2,17)^r(w2,19)^(w2>>>10)))|0),
+      t2=(r(a0,2)^r(a0,13)^r(a0,22))+((a0&h[1])^(a0&h[2])^(h[1]&h[2]));
+      h=[(t1+t2)|0].concat(h);h[4]=(h[4]+t1)|0;}
+    for(i=0;i<8;i++)h[i]=(h[i]+oh[i])|0;}
+  for(i=0;i<8;i++){for(j=3;j+1;j--){var b=(h[i]>>(j*8))&255;res+=((b<16)?0:'')+b.toString(16);}}
+  return res;}
+function pinHash(salt,pin){return sha256('imast:'+salt+':'+pin);}
+function pinOk(pin){return !!(S.pin&&S.pin.h&&pinHash(S.pin.s,pin)===S.pin.h);}
+function lockActive(){return !!(S.pin&&S.pin.h)||!!(NATIVE&&S.bio);}
+var pinState=null;
+function lockNow(){locked=true;pinState={mode:'unlock',buf:'',msg:'',tries:0,until:0};modal('lock');if(NATIVE&&S.bio)unlock();}
+function unlockDone(){locked=false;pinState=null;closeModal();render();}
+function unlock(){goingOut();NATIVE.authenticate('Вход в Imast');nCbs.auth=function(v){ext=false;ignoreResumeUntil=Date.now()+1500;
+  if(v===true){unlockDone();}
+  else if(v==='unavailable'){S.bio=false;save();if(S.pin&&S.pin.h){toast('Отпечаток недоступен, войдите по коду');modal('lock');}else{unlockDone();toast('Отпечаток недоступен, вход по нему выключен');}}};}
+function pinDigit(dg){var ps=pinState;if(!ps)return;
+  if(ps.until&&Date.now()<ps.until){ps.msg='Подождите '+Math.ceil((ps.until-Date.now())/1000)+' с';redrawPin();return;}
+  if(ps.buf.length>=4)return;ps.buf+=dg;ps.msg='';redrawPin();
+  if(ps.buf.length===4)setTimeout(pinFull,120);}
+function pinFull(){var ps=pinState;if(!ps)return;var b=ps.buf;ps.buf='';
+  if(ps.mode==='unlock'){if(pinOk(b)){unlockDone();return;}ps.tries++;
+    if(ps.tries>=5){ps.until=Date.now()+30000;ps.tries=0;ps.msg='Пять ошибок подряд. Подождите 30 секунд';}else ps.msg='Неверный код';}
+  else if(ps.mode==='set1'){ps.first=b;ps.mode='set2';ps.msg='';}
+  else if(ps.mode==='set2'){if(b===ps.first){var salt=String(Date.now())+Math.random().toString(36).slice(2);S.pin={s:salt,h:pinHash(salt,b)};save();pinState=null;modal('settings');toast('Код входа включён');return;}
+    ps.mode='set1';ps.first='';ps.msg='Коды не совпали. Введите код заново';}
+  else if(ps.mode==='verifyOff'){if(pinOk(b)){S.pin=null;save();pinState=null;modal('settings');toast('Код входа выключен');return;}ps.msg='Неверный код';}
+  else if(ps.mode==='verifyChange'){if(pinOk(b)){ps.mode='set1';ps.msg='';}else ps.msg='Неверный код';}
+  redrawPin();}
+function redrawPin(){var el=$('#pinbox');if(el)el.innerHTML=pinInner();else modal(locked?'lock':'pin');}
+function pinTitle(){var m=pinState&&pinState.mode;return m==='unlock'?'Введите код':m==='set1'?'Придумайте код из 4 цифр':m==='set2'?'Повторите код':'Введите текущий код';}
+function pinInner(){var ps=pinState||{buf:'',msg:''},dots='';for(var i=0;i<4;i++)dots+='<i'+(i<ps.buf.length?' class="on"':'')+'></i>';
+  var bio=(locked&&NATIVE&&S.bio)?'<button class="kp-ghost" data-act="kpbio">Отпечаток</button>':'<span></span>';
+  var keys='';for(var d=1;d<=9;d++)keys+='<button data-act="kp" data-v="'+d+'" aria-label="'+d+'">'+d+'</button>';
+  keys+=bio+'<button data-act="kp" data-v="0" aria-label="0">0</button><button class="kp-ghost" data-act="kpdel" aria-label="Стереть цифру">Стереть</button>';
+  return '<p class="small" style="text-align:center;margin:0">'+pinTitle()+'</p><div class="pin-dots" aria-label="Введено цифр: '+ps.buf.length+' из 4">'+dots+'</div><p class="pin-msg" role="alert">'+esc(ps.msg||'')+'</p><div class="keypad">'+keys+'</div>';}
+/* ---------- резервная копия файлом ---------- */
+function exportData(){var txt=JSON.stringify(S),name='imast-'+today()+'.json';
+  if(NATIVE&&NATIVE.saveFile){goingOut();nCbs.saved=function(v){ext=false;ignoreResumeUntil=Date.now()+1500;if(v===true){S.lastBackup=today();delete S.backupSnooze;save();render();toast('Копия сохранена');}else toast('Копия не сохранена');};NATIVE.saveFile(name,txt);}
+  else if(NATIVE){goingOut();NATIVE.shareText(txt,'Imast — резервная копия '+today());S.lastBackup=today();delete S.backupSnooze;save();}
+  else{var bl=new Blob([txt],{type:'application/json'}),u=URL.createObjectURL(bl),ln=document.createElement('a');ln.href=u;ln.download=name;document.body.appendChild(ln);ln.click();ln.remove();setTimeout(function(){URL.revokeObjectURL(u);},1000);S.lastBackup=today();delete S.backupSnooze;save();render();toast('Копия сохранена файлом');}}
+function hasData(){return Object.keys(S.days).length>0||S.habits.length>0||(S.tasks||[]).some(function(t){return !t.sample;});}
+function daysBetween(a,b){return Math.round((dayNum(parse(b))-dayNum(parse(a))));}
+function backupDue(){if(!hasData())return false;if(S.backupSnooze&&today()<S.backupSnooze)return false;return !S.lastBackup||daysBetween(S.lastBackup,today())>=7;}
 function save(){var s=JSON.stringify(S); mem=s; try{localStorage.setItem(KEY,s);}catch(e){}}
 
 /* ---------- утилиты ---------- */
@@ -213,13 +357,91 @@ var Q=[
 ];
 /* источники цитат, по порядку массива Q */
 var QSRC=['«Размышления», II, 1','«Энхиридион», 5','«Письма к Луцилию», 13','«Размышления», V, 20','«Энхиридион», 1','«Письма к Луцилию», 1','«Размышления», X, 16','«Энхиридион», 8','«Размышления», VI, 6','«О гневе», III, 36','по мотивам «Размышлений»','«Письма к Луцилию», 104'];
-/* запись дня в заданном формате */
-var FMT=[['s','Суть','Что произошло'],['a','Анализ','Почему так и что зависело от меня'],['c','Вывод','Что беру на завтра']];
-function entryText(r){var e=r&&r.entry;return e?[e.s,e.a,e.c]:[];}
+/* записи в дневнике: форматы и свободная запись */
+var FORMATS={
+ day:{name:'Разбор дня',f:[['s','Суть','Что произошло'],['a','Анализ','Почему так и что зависело от меня'],['c','Вывод','Что беру на завтра']]},
+ topic:{name:'Разбор темы',f:[['h','Заголовок','О чём запись'],['s','Суть темы','Главная мысль'],['a','Анализ','Что я об этом думаю и почему'],['c','Вывод','Что из этого следует для меня']]},
+ plan:{name:'План',f:[['h','Заголовок','Что хочу'],['x','Ожидание','Что сделаю и чего жду'],['z','Завершение','Как пойму, что получилось']]},
+ free:{name:'Свободная запись',f:[['t','Запись','Пишите для себя, как есть']]}
+};
+var FKEYS=['day','topic','plan','free'];
+function entriesOf(r){return (r&&r.entries)||[];}
+function entryChars(e){var n=0;for(var k in e.v)n+=String(e.v[k]||'').length;return n;}
+function entryText(r){var out=[];entriesOf(r).forEach(function(e){for(var k in e.v)if(e.v[k])out.push(e.v[k]);});return out;}
+function entryLead(e){var F=FORMATS[e.f]||FORMATS.day;for(var i=0;i<F.f.length;i++){var v=e.v[F.f[i][0]];if(v)return v;}return '';}
 function stage(date){
   var p=phase(); var k=(p==='m')?0:2; return k+(done(date,p)?1:0);
 }
 function quoteIdx(date){return (dayNum(parse(date))*5+stage(date)*3)%Q.length;}
+
+/* ---------- учебные блоки «Обучись»: пересказ «Размышлений», не дословный перевод ---------- */
+var LEARN=[
+ {id:'b1',ref:'II, 1',title:'Утреннее упражнение',
+  thesis:'С утра Марк заранее говорит себе, что встретит назойливых, неблагодарных, завистливых людей. Они такие от незнания добра и зла. Повредить мне они не могут, а злиться на них бессмысленно: мы созданы для совместного дела.',
+  terms:[['ἄγνοια','а́гнойа','Незнание, неведение. По Марку, люди поступают дурно, потому что не знают, что такое добро и зло.'],
+         ['συγγενής','сюнгене́с','Родственный. Не по крови, а по общему разуму: все люди причастны одному уму.'],
+         ['συνεργία','сюнерги́а','Совместное действие. Люди созданы помогать друг другу, как части одного тела.']],
+  context:['Это стоический приём заранее представлять трудности. Позже его назовут по-латыни praemeditatio malorum, «предварительное обдумывание бед»: неприятность, к которой готов, не застаёт врасплох.',
+           'Мысль о незнании идёт от Сократа: никто не делает зла добровольно, человек ошибается в том, что считает благом. Она есть у Платона в «Протагоре».',
+           'Марк сравнивает людей с ногами, руками, веками, верхним и нижним рядом зубов: они работают вместе, а мешать друг другу противно природе.',
+           'Марк писал по-гречески и для себя, а не для читателя. Между первой и второй книгами стоит пометка «Среди квадов, у Грануи», то есть в военном походе на Дунае.'],
+  conclusion:'Трудный человек не повод терять себя. Гнев на него — ошибка суждения, а не ответ на его поступок.',
+  quiz:[
+   {q:'Почему, по Марку, люди бывают назойливыми и неблагодарными?',o:['От незнания добра и зла','От злой природы','Из-за плохого воспитания','По воле богов'],a:0,e:'Марк считает дурные поступки следствием незнания (ἄγνοια), а не злого умысла.'},
+   {q:'Что значит «родственный» (συγγενής) у Марка?',o:['Человек из той же семьи','Причастный тому же разуму','Человек из той же страны','Ученик той же школы'],a:1,e:'Родство у Марка не кровное: все люди причастны одному разуму, поэтому они родня друг другу.'},
+   {q:'Как называют приём заранее представлять трудности дня?',o:['Memento mori','Amor fati','Praemeditatio malorum','Ataraxia'],a:2,e:'Praemeditatio malorum — «предварительное обдумывание бед». Memento mori — «помни о смерти», amor fati — «любовь к судьбе», атараксия — невозмутимость.'},
+   {q:'С чем Марк сравнивает людей, созданных для совместного дела?',o:['С кораблями одного флота','С ногами, руками, веками и рядами зубов','С колоннами одного храма','С солдатами в строю'],a:1,e:'Марк берёт образ тела: ноги, руки, веки, верхние и нижние зубы работают вместе.'},
+   {q:'Какой вывод следует из II.1?',o:['Трудных людей нужно избегать','Гнев на трудного человека — ошибка суждения','На грубость нужно отвечать тем же','Раз людей не изменить, общаться не стоит'],a:1,e:'Человек, который понимает природу добра и зла, не может потерпеть вред от чужого незнания и не должен гневаться на родственного ему.'}]},
+ {id:'b2',ref:'II, 14',title:'Потерять можно только настоящее',
+  thesis:'Проживи ты хоть три тысячи лет или в десять раз больше, теряешь ты только ту жизнь, которой живёшь сейчас. Прошлого и будущего у тебя нет, а то, чего у тебя нет, отнять нельзя.',
+  terms:[['τὸ παρόν','то паро́н','Настоящее, то, что есть сейчас. Единственное, чем человек действительно владеет.'],
+         ['ὁμοειδής','хомоэйде́с','Однородный, одного вида. Марк говорит, что всё в мире от века однородно и повторяется.']],
+  context:['Довод Марка: настоящее у всех одинаковой длины, поэтому долгая и короткая жизнь теряют равное — один миг.',
+           'За этим стоит стоическое представление о мире, который идёт по кругу и повторяется. Поэтому, говорит Марк, неважно, видишь ли ты одно и то же сто лет или двести.',
+           'Похожая мысль есть у Сенеки в первом письме к Луцилию: прошедшее время уже принадлежит смерти, поэтому держись за каждый час сегодняшнего дня.'],
+  conclusion:'Мера жизни не её длина, а то, как прожит настоящий момент.',
+  quiz:[
+   {q:'Что теряет человек, умирая?',o:['Всё прожитое прошлое','Только настоящее','Свои будущие годы','Память о себе'],a:1,e:'Прошлого и будущего у человека нет, поэтому потерять он может только настоящее.'},
+   {q:'Почему нельзя потерять прошлое и будущее?',o:['Их хранят боги','Их у человека нет','Они записаны в книгах','Они бесконечны'],a:1,e:'Как можно отнять то, чего у человека нет? Прошлое уже ушло, будущее ещё не наступило.'},
+   {q:'Что означает τὸ παρόν?',o:['Прошлое','Будущее','Настоящее','Вечность'],a:2,e:'Τὸ παρόν [то паро́н] — настоящее, то, что есть сейчас.'},
+   {q:'Какой срок жизни Марк приводит для примера?',o:['Сто лет','Три тысячи лет','Семьдесят лет','Тысячу лет'],a:1,e:'Марк пишет: проживи хоть три тысячи лет или в десять раз больше.'},
+   {q:'Какой вывод следует из II.14?',o:['Нужно стремиться жить как можно дольше','Долгая и короткая жизнь теряют равное, поэтому важно, как прожит настоящий миг','Прошлое важнее настоящего','О будущем не стоит думать вовсе'],a:1,e:'Длина жизни безразлична: мера жизни — качество настоящего момента.'}]},
+ {id:'b3',ref:'V, 20',title:'Препятствие становится путём',
+  thesis:'Люди могут помешать моему действию, но не моему намерению и настрою. Ум обращает препятствие в материал для дела: то, что мешает делу, становится делом, а преграда на пути — путём.',
+  terms:[['ἐμπόδιον','эмпо́дион','Препятствие, помеха на пути.'],
+         ['ὑπεξαίρεσις','хюпексаи́ресис','Оговорка. Стоик действует с условием «если ничто не помешает», поэтому помеха не ломает его намерение.'],
+         ['ἀδιάφορον','адиа́форон','Безразличное: то, что не является ни благом, ни злом. Человек, который мешает делу, становится для Марка чем-то безразличным, как солнце, ветер или зверь.']],
+  context:['Начало главы: человек мне ближе всех, ведь я должен делать людям добро и терпеть их. Но когда кто-то мешает моему делу, он становится для меня чем-то безразличным.',
+           'Оговорку описывает и Сенека в трактате «О благодеяниях»: мудрый берётся за дело с мыслью «если ничто не помешает», поэтому неудача не ломает его.',
+           'Фраза «препятствие становится путём» стала широко известна благодаря книге Райана Холидея The Obstacle Is the Way (2014).'],
+  conclusion:'Препятствие можно не только переждать, но и использовать: оно показывает, чему учиться и что делать иначе.',
+  quiz:[
+   {q:'Что ум делает с препятствием?',o:['Избегает его','Превращает в подспорье для дела','Забывает о нём','Ждёт, пока оно исчезнет'],a:1,e:'Ум обращает и перестраивает всякое препятствие деятельности в подспорье для неё.'},
+   {q:'Что такое «оговорка» (ὑπεξαίρεσις)?',o:['Отказ от цели при первой помехе','Действие с условием «если ничто не помешает»','Обещание, данное другим людям','Жалоба на обстоятельства'],a:1,e:'Стоик заранее допускает помеху, поэтому она не разрушает его намерение.'},
+   {q:'Чем становится для Марка человек, который мешает делу?',o:['Врагом','Учителем','Чем-то безразличным, как солнце, ветер или зверь','Другом'],a:2,e:'Мешающий человек для Марка безразличен (ἀδιάφορον): он может остановить действие, но не намерение.'},
+   {q:'Что люди могут остановить, а что нет?',o:['Намерение, но не действие','Действие, но не намерение и настрой','Всё','Ничего'],a:1,e:'Действию можно помешать, а стремление и настрой остаются за человеком.'},
+   {q:'Какой вывод следует из V.20?',o:['Препятствия лучше обходить','Препятствие — материал для роста и само становится путём','Лучше ничего не начинать','Препятствия посылают как наказание'],a:1,e:'То, что мешает делу, становится делом, а преграда на пути — путём.'}]}
+];
+function learnPassed(id){return !!(S.learn[id]&&S.learn[id].passed);}
+function learnOpen(i){return i===0||learnPassed(LEARN[i-1].id);}
+function learnCount(){return LEARN.filter(function(b){return learnPassed(b.id);}).length;}
+
+/* ---------- задачник: задача → блоки → шаги ---------- */
+function uid(p){return p+Date.now().toString(36)+Math.random().toString(36).slice(2,6);}
+function plusDays(n){return ymd(addDays(new Date(),n));}
+function demoTask(){
+  function st(n,d){return {id:uid('s'),name:n,date:plusDays(d),time:'',done:false};}
+  return {id:uid('t'),title:'Начать тренироваться',sample:true,blocks:[
+    {id:uid('b'),name:'Подготовка',steps:[st('Выбрать цель: сила, выносливость или гибкость',0),st('Выбрать дни и время',0),st('Найти место: дом, зал или улица',1)]},
+    {id:uid('b'),name:'Первые две недели',steps:[st('Неделя 1: три тренировки по 20 минут',7),st('Неделя 2: три тренировки по 20 минут',14),st('Записать в дневник, как самочувствие',14)]},
+    {id:uid('b'),name:'Закрепление',steps:[st('Увеличить время до 30–40 минут',21),st('Сравнить самочувствие с первой неделей',21),st('Добавить привычку «Тренировка»',22)]}]};
+}
+function ensureTasks(){if(!Array.isArray(S.tasks)){S.tasks=[demoTask()];save();}}
+function stepLocked(b,si){return si>0&&!b.steps[si-1].done;}
+function taskSteps(t){var n=0,d=0;t.blocks.forEach(function(b){b.steps.forEach(function(s){n++;if(s.done)d++;});});return [d,n];}
+function dueSteps(t){var out=[],td=today();t.blocks.forEach(function(b,bi){b.steps.forEach(function(s,si){if(!s.done&&!stepLocked(b,si)&&s.date&&s.date<=td)out.push({t:t,b:b,s:s,bi:bi,si:si});});});return out;}
+function allDue(){var out=[];(S.tasks||[]).forEach(function(t){out=out.concat(dueSteps(t));});return out;}
+function fmtDate(s){if(!s)return '';var p=s.split('-');return p[2]+'.'+p[1];}
 
 /* ---------- вопросы дневника ---------- */
 var QS={
@@ -248,8 +470,9 @@ function mentor(text){
   return {text:MC.def};
 }
 
-/* ---------- мозаика: один готовый портрет, нарезанный на 8×6 кубиков ---------- */
-var COLS=8,ROWS=6,TOTAL=48;
+/* ---------- мозаика: один готовый портрет, нарезанный на 10×9 кубиков (до трёх в день: утро, вечер, запись) ---------- */
+var COLS=10,ROWS=9,TOTAL=90;
+function tilesEarned(){var n=0;for(var k in S.days){if(done(k,'m'))n++;if(done(k,'e'))n++;if(entriesOf(S.days[k]).length)n++;}return n;}
 var ORDER=(function(){var a=[],i;for(i=0;i<TOTAL;i++)a.push(i);var s=20240;function r(){s=(s*1664525+1013904223)%4294967296;return s/4294967296;}
   for(i=TOTAL-1;i>0;i--){var j=Math.floor(r()*(i+1));var t=a[i];a[i]=a[j];a[j]=t;}return a;})();
 function sessions(){var n=0;for(var k in S.days){if(done(k,'m'))n++;if(done(k,'e'))n++;}return n;}
@@ -280,7 +503,8 @@ function portrait(){
 
 /* ---------- дерево привычек ---------- */
 var TIERS=[[0,'пока росток размером с ботинок'],[0.5,'по колено'],[1,'до пояса'],[1.7,'с вас ростом'],[3,'как одноэтажный дом'],[6,'как двухэтажный дом'],[15,'как 5-этажный дом'],[30,'как 10-этажный дом']];
-function totalChecks(){var n=0;S.habits.forEach(function(h){n+=Object.keys(h.checks||{}).length;});return n;}
+function totalChecks(){var n=0;S.habits.forEach(function(h){n+=Object.keys(h.checks||{}).length;});return n+stepsDone();}
+function stepsDone(){var n=0;(S.tasks||[]).forEach(function(t){t.blocks.forEach(function(b){b.steps.forEach(function(s){if(s.done)n++;});});});return n;}
 function fmt(m){return (Math.round(m*10)/10).toString().replace('.',',');}
 function tier(m){var t=TIERS[0];TIERS.forEach(function(x){if(m>=x[0])t=x;});return t;}
 function treeSVG(m){
@@ -299,9 +523,9 @@ function treeSVG(m){
 
 /* ---------- экраны ---------- */
 var ROUTES=['quotes','diary','mosaic','habits','stats'];
-var NAMES={quotes:'Цитаты',diary:'Дневник',mosaic:'Мозаика',habits:'Привычки',stats:'Статистика'};
+var NAMES={quotes:'Обучись',diary:'Дневник',mosaic:'Мозаика',habits:'Привычки',stats:'Статистика'};
 var ICONS={
- quotes:'<path d="M7 7h4v4c0 3-1.500 5-4 5M15 7h4v4c0 3-1.500 5-4 5"/>',
+ quotes:'<path d="M3 5.5C5.5 4.5 9 4.5 12 6.5c3-2 6.5-2 9-1V19c-2.5-1-6-1-9 1-3-2-6.5-2-9-1z"/><path d="M12 6.5V20"/>',
  diary:'<path d="M5 4h11a3 3 0 0 1 3 3v13H8a3 3 0 0 1-3-3V4zM5 17a3 3 0 0 1 3-3h11"/>',
  mosaic:'<rect x="4" y="4" width="7" height="7" rx="1"/><rect x="13" y="4" width="7" height="7" rx="1"/><rect x="4" y="13" width="7" height="7" rx="1"/><rect x="13" y="13" width="7" height="7" rx="1"/>',
  habits:'<path d="M12 21v-8M12 13c-4 0-6-2-6-6 4 0 6 2 6 6zM12 15c3 0 5-2 5-5-3 0-5 2-5 5z"/>',
@@ -317,12 +541,46 @@ function viewQuotes(){
   var lucky=viewQuotes.lucky;
   var ci=lucky!=null?lucky:quoteIdx(d),cur=Q[ci];
   var open=viewQuotes.open;
-  return '<h2>'+(lucky!=null?'Цитата на удачу':kicker)+'</h2>'+
-   '<div class="card"><p class="quote">«'+esc(cur.t)+'»</p><p class="author">'+esc(cur.a)+'</p><p class="muted small">Пересказ. Источник: '+esc(QSRC[ci])+'</p>'+
+  return '<div class="card"><h3>'+(lucky!=null?'Цитата на удачу':kicker)+'</h3><p class="quote">«'+esc(cur.t)+'»</p><p class="author">'+esc(cur.a)+'</p><p class="muted small">Пересказ. Источник: '+esc(QSRC[ci])+'</p>'+
    '<div class="row" style="justify-content:space-between"><button class="qmark" data-act="note" aria-expanded="'+(!!open)+'" aria-label="Простыми словами">?</button><span class="muted small">простыми словами</span></div>'+
    (open?'<div class="hint"><span>'+esc(cur.n)+'</span></div>':'')+
    '<div class="row"><button class="btn primary" data-act="next">'+(pdone?'Открыть запись':'Далее')+'</button><button class="btn" data-act="luck">На удачу</button>'+(lucky!=null?'<button class="btn ghost" data-act="back">Вернуть цитату</button>':'')+'</div></div>'+
    '<p class="muted small">'+st+'. Цитата меняется после ответов на вопросы, а вечерняя приходит после 20:00.</p>';
+}
+/* вкладка «Обучись»: напоминания, цитата дня и учебные блоки */
+function viewLearn(){
+  if(viewLearn.open!=null)return viewBlock(LEARN[viewLearn.open]);
+  var top='';
+  if(backupDue()){var ago=S.lastBackup?daysBetween(S.lastBackup,today()):null;
+    top+='<div class="banner" role="status"><p class="small">'+(ago==null?'Резервная копия ещё не сохранялась.':'Последняя копия была '+ago+' '+plural(ago,'день','дня','дней')+' назад.')+' Если телефон потеряется, записи можно будет вернуть только из копии.</p>'+
+      '<div class="row"><button class="btn primary" data-act="export">Сохранить копию</button><button class="btn ghost" data-act="bsnooze">Позже</button></div></div>';}
+  var due=allDue();
+  if(due.length)top+='<div class="banner"><p class="small"><b>Шаги задач на сегодня: '+due.length+'.</b> '+esc(due[0].s.name)+(due.length>1?' и ещё '+(due.length-1):'')+'.</p><div class="row"><button class="btn" data-act="gotasks">Открыть задачи</button></div></div>';
+  var list=LEARN.map(function(b,i){var ok=learnPassed(b.id),op=learnOpen(i);
+    return '<button class="card blk" style="text-align:left;width:100%" data-act="lopen" data-v="'+i+'"'+(op?'':' disabled')+'><span class="bt"><span class="muted small">Блок '+(i+1)+' · «Размышления», '+esc(b.ref)+'</span><span class="bn">'+esc(b.title)+'</span></span>'+
+      '<span class="state'+(ok?' ok':'')+'">'+(ok?'Пройден':op?'Открыт':'Закрыт')+'</span></button>';}).join('');
+  return '<h2>Обучись</h2>'+top+viewQuotes()+
+   '<div style="display:flex;flex-direction:column;gap:10px"><h3>Учебные блоки · пройдено '+learnCount()+' из '+LEARN.length+'</h3>'+list+
+   '<p class="muted small">Блоки открываются по очереди. Чтобы пройти блок, ответьте верно хотя бы на 4 вопроса из 5. Тексты — пересказ «Размышлений» Марка Аврелия.</p></div>';
+}
+function plural(n,a,b,c){var m=n%10,h=n%100;return (m===1&&h!==11)?a:(m>=2&&m<=4&&(h<12||h>14))?b:c;}
+function viewBlock(b){
+  var qz=viewLearn.quiz,head='<div class="row" style="justify-content:space-between"><button class="btn ghost" data-act="lback">← К блокам</button><span class="muted small">«Размышления», '+esc(b.ref)+'</span></div><h2>'+esc(b.title)+'</h2>';
+  if(!qz){
+    return head+'<div class="card lsec"><h3>Тезис</h3><p>'+esc(b.thesis)+'</p></div>'+
+     '<div class="card lsec"><h3>Термины</h3>'+b.terms.map(function(t){return '<div class="term"><b lang="grc">'+t[0]+'</b><span class="muted small">['+t[1]+']</span><span class="small">'+esc(t[2])+'</span></div>';}).join('')+'</div>'+
+     '<div class="card lsec"><h3>Контекст</h3><ul class="plain">'+b.context.map(function(c){return '<li>'+esc(c)+'</li>';}).join('')+'</ul></div>'+
+     '<div class="card lsec"><h3>Вывод</h3><p>'+esc(b.conclusion)+'</p></div>'+
+     '<button class="btn primary" data-act="qstart">Проверить себя: 5 вопросов</button>';}
+  if(qz.i>=b.quiz.length){var ok=qz.score>=4;
+    return head+'<div class="card"><h3>Результат</h3><p class="q-title">Верно '+qz.score+' из '+b.quiz.length+'</p>'+
+      '<p>'+(ok?'Блок пройден.'+(viewLearn.open<LEARN.length-1?' Открыт следующий блок.':' Это был последний блок.'):'Чтобы пройти блок, нужно 4 верных ответа из 5. Перечитайте блок и попробуйте снова.')+'</p>'+
+      '<div class="row"><button class="btn primary" data-act="lback">К блокам</button><button class="btn" data-act="qretry">Пройти ещё раз</button></div></div>';}
+  var Qn=b.quiz[qz.i],picked=qz.pick,ans=picked!=null;
+  var opts=Qn.o.map(function(o,j){var cls=ans?(j===Qn.a?' right':(j===picked?' wrong':'')):'';return '<button class="opt'+cls+'" data-act="qpick" data-v="'+j+'"'+(ans?' disabled':'')+'>'+esc(o)+'</button>';}).join('');
+  return head+'<div class="card"><div class="stepper"><span class="step">Вопрос '+(qz.i+1)+' из '+b.quiz.length+'</span><span class="muted small">Верно: '+qz.score+'</span></div>'+
+    '<p class="q-title" style="font-size:24px">'+esc(Qn.q)+'</p><div style="display:flex;flex-direction:column;gap:8px">'+opts+'</div>'+
+    (ans?'<p class="verdict '+(picked===Qn.a?'ok">Верно.':'no">Не совсем.')+'</p><p class="small">'+esc(Qn.e)+'</p><button class="btn primary" data-act="qnext">'+(qz.i<b.quiz.length-1?'Следующий вопрос':'Результат')+'</button>':'')+'</div>';
 }
 function viewDiary(){
   var d=today(),sess=wiz.sess,p=phase();
@@ -343,24 +601,37 @@ function viewDiary(){
   }
   var r=S.days[d]||{},m='';
   if(r.mentor){m='<div class="card"><div class="mentor'+(r.mentor.safe?' safe':'')+'"><span class="who">Марк Аврелий, наставник</span><p>'+esc(r.mentor.text)+'</p></div><p class="muted small">Это симуляция наставника, а не сам Марк Аврелий. В демо комментарии заготовлены заранее.</p></div>';}
-  else if(done(d,'m')||done(d,'e')||r.entry){m='<div class="card"><h3>Наставник</h3><p class="muted">Один комментарий к записи дня.</p><button class="btn" data-act="mentor">Спросить Марка Аврелия</button></div>';}
-  var en=r.entry,dr=viewDiary.draft||en||{},ent;
-  if(en&&!viewDiary.edit){ent='<div class="card"><h3>Запись дня</h3><div class="answers">'+FMT.map(function(f){return '<div class="ans"><span><span class="muted">'+f[1]+'</span><br>'+esc(en[f[0]]||'—')+'</span></div>';}).join('')+'</div><div class="row"><button class="btn ghost" data-act="eedit">Изменить</button></div></div>';}
-  else{ent='<form class="card form" id="eform"><h3>Запись дня</h3><p class="muted small">Формат записи: суть, анализ, вывод.</p>'+FMT.map(function(f){return '<label for="e_'+f[0]+'">'+f[1]+'<textarea id="e_'+f[0]+'" rows="2" maxlength="400" placeholder="'+f[2]+'">'+esc(dr[f[0]]||'')+'</textarea></label>';}).join('')+'<div class="row"><button class="btn primary" type="submit">Сохранить запись</button></div></form>';}
+  else if(done(d,'m')||done(d,'e')||entriesOf(r).length){m='<div class="card"><h3>Наставник</h3><p class="muted">Один комментарий к записи дня.</p><button class="btn" data-act="mentor">Спросить Марка Аврелия</button></div>';}
+  var list=entriesOf(r),ed=viewDiary.ed,ent;
+  if(ed){var F=FORMATS[ed.f]||FORMATS.day,isNew=ed.idx==null;
+    ent='<form class="card form" id="eform"><h3>'+(isNew?'Новая запись':'Запись')+'</h3>'+
+      (isNew?'<div class="row" role="group" aria-label="Формат записи">'+FKEYS.map(function(k){return '<button type="button" class="chipbtn" data-act="efmt" data-v="'+k+'" aria-pressed="'+(ed.f===k)+'">'+FORMATS[k].name+'</button>';}).join('')+'</div>':'<p class="fmtname">'+F.name+'</p>')+
+      F.f.map(function(f){var free=ed.f==='free';return '<label for="e_'+f[0]+'">'+f[1]+'<textarea id="e_'+f[0]+'" rows="'+(free?8:3)+'"'+(free?'':' maxlength="2000"')+' placeholder="'+esc(f[2])+'">'+esc(ed.v[f[0]]||'')+'</textarea></label>';}).join('')+
+      '<div class="row"><button class="btn primary" type="submit">Сохранить запись</button><button class="btn ghost" type="button" data-act="ecancel">Отмена</button>'+
+      (isNew?'':'<button class="btn ghost" type="button" data-act="edel">'+(ed.delAsk?'Точно удалить?':'Удалить')+'</button>')+'</div></form>';}
+  else{ent='<div class="card"><h3>Записи за сегодня</h3>'+
+      (list.length?list.map(function(e,i){var F2=FORMATS[e.f]||FORMATS.day,lead=entryLead(e);if(lead.length>140)lead=lead.slice(0,140)+'…';
+        return '<div class="entry-item"><span class="fmtname">'+F2.name+(e.t?' · '+esc(e.t):'')+'</span><p class="small">'+esc(lead)+'</p><div class="row"><button class="btn ghost" data-act="eopen" data-v="'+i+'">Открыть</button></div></div>';}).join('')
+       :'<p class="muted small">Записей пока нет. Выберите формат: разбор дня, разбор темы, план или свободная запись. Первая запись за день открывает кубик мозаики.</p>')+
+      '<button class="btn primary" data-act="enew">Новая запись</button></div>';}
   return '<h2>Дневник</h2>'+seg+body+ent+m;
 }
 function viewMosaic(){
-  var n=Math.min(sessions(),TOTAL),open={};ORDER.slice(0,n).forEach(function(i){open[i]=1;});
+  var n=Math.min(tilesEarned(),TOTAL),open={};ORDER.slice(0,n).forEach(function(i){open[i]=1;});
   var tiles='';for(var i=0;i<TOTAL;i++)tiles+='<div class="tile'+(open[i]?' open':'')+'"></div>';
   var full=n>=TOTAL;
   return '<h2>Мозаика</h2><div class="card"><div class="mosaic">'+portrait()+'<div class="tiles" aria-hidden="true">'+tiles+'</div></div>'+
    (full?'<p class="caption">Марк был учёным-воином</p>':'<p class="muted small">Подпись откроется, когда картина соберётся.</p>')+
    '<div><div class="row" style="justify-content:space-between;margin-bottom:6px"><span class="small">Кубиков открыто</span><b class="small">'+n+' из '+TOTAL+'</b></div><div class="bar"><i style="width:'+(n/TOTAL*100)+'%"></i></div></div>'+
-   '<p class="muted small">Каждые утренние и вечерние ответы открывают один кубик. Пропуск ничего не обнуляет: картина ждёт.</p></div>'+
+   '<p class="muted small">Утренние ответы, вечерние ответы и запись в дневнике открывают по кубику, не больше трёх в день. Портрет собирается примерно за месяц. Пропуск ничего не обнуляет: картина ждёт.</p></div>'+
    '<div class="card"><h3>В бете</h3><p class="small">12 портретов за год, золотой венок и медаль «Я превзошёл себя».</p></div>';
 }
 function dayChips(h){return '<div class="days">'+WD.map(function(n,i){return '<span class="day'+(h.days.indexOf(i+1)>=0?' on':'')+'">'+n+'</span>';}).join('')+'</div>';}
 function viewHabits(){
+  var seg='<div class="seg" role="group" aria-label="Раздел"><button data-act="htab" data-v="h" aria-pressed="'+(viewHabits.tab!=='t')+'">Привычки</button><button data-act="htab" data-v="t" aria-pressed="'+(viewHabits.tab==='t')+'">Задачи'+(allDue().length?' · '+allDue().length:'')+'</button></div>';
+  return '<h2>'+(viewHabits.tab==='t'?'Задачи':'Привычки')+'</h2>'+seg+(viewHabits.tab==='t'?viewTasks():habitsBody());
+}
+function habitsBody(){
   var d=today(),m=totalChecks()*0.2,t=tier(m);
   var tree='<div class="card"><h3>Дерево привычек</h3><div class="tree-wrap">'+treeSVG(m)+'</div><p>Ваши привычки выросли до <b>'+fmt(m)+' м</b>: '+esc(t[1])+'.</p><p class="muted small">Каждая отметка добавляет 20 см.</p></div>';
   var list=S.habits.map(function(h){
@@ -380,9 +651,119 @@ function viewHabits(){
    '<label for="hd">Дата начала<input type="date" id="hd" value="'+d+'" required></label>'+
    '<div class="row"><button class="btn primary" type="submit">Добавить</button><button class="btn ghost" type="button" data-act="hcancel">Отмена</button></div></form>':
    '<button class="btn primary" data-act="hadd">Добавить привычку</button>';
-  return '<h2>Привычки</h2>'+tree+(list||'<div class="card"><p class="muted">Привычек пока нет. Добавьте первую: название, время, дни недели и дата начала.</p></div>')+form;
+  return tree+(list||'<div class="card"><p class="muted">Привычек пока нет. Добавьте первую: название, время, дни недели и дата начала.</p></div>')+form;
 }
-viewHabits.days=[1,2,3,4,5];viewHabits.form=false;
+viewHabits.days=[1,2,3,4,5];viewHabits.form=false;viewHabits.tab='h';
+
+/* ---------- задачи: доска и список ---------- */
+var CW={c:[156,66],b:[140,66],s:[150,78]},GAP=18,PAD=44;
+function rectsOverlap(a,b){return Math.abs(a.x-b.x)*2<(a.w+b.w+8)&&Math.abs(a.y-b.y)*2<(a.h+b.h+8);}
+function rayStep(ang,a,b){var c=Math.abs(Math.cos(ang)),s=Math.abs(Math.sin(ang)),x=c>1e-6?(a[0]/2+b[0]/2+GAP)/c:1e9,y=s>1e-6?(a[1]/2+b[1]/2+GAP)/s:1e9;return Math.min(x,y);}
+function layoutTask(t){
+  var n=Math.max(t.blocks.length,1),R=n>=5?210:170,L;
+  for(var tries=0;tries<14;tries++){
+    L={c:{x:0,y:0,w:CW.c[0],h:CW.c[1]},b:[]};var all=[L.c];
+    t.blocks.forEach(function(b,bi){var ang=-Math.PI/2+bi*2*Math.PI/n,ca=Math.cos(ang),sa=Math.sin(ang);
+      var r0=Math.max(R,rayStep(ang,CW.c,CW.b)+20),B={x:ca*r0,y:sa*r0,w:CW.b[0],h:CW.b[1],ang:ang,s:[]};all.push(B);
+      var d1=rayStep(ang,CW.b,CW.s)+6,d2=rayStep(ang,CW.s,CW.s)+6,r=r0+d1;
+      b.steps.forEach(function(s,si){if(si>0)r+=d2;var S2={x:ca*r,y:sa*r,w:CW.s[0],h:CW.s[1]};B.s.push(S2);all.push(S2);});
+      L.b.push(B);});
+    var bad=false;for(var i=0;i<all.length&&!bad;i++)for(var j=i+1;j<all.length;j++)if(rectsOverlap(all[i],all[j])){bad=true;break;}
+    if(!bad)break;R+=40;}
+  var minx=1e9,miny=1e9,maxx=-1e9,maxy=-1e9;
+  function each(f){f(L.c);L.b.forEach(function(B){f(B);B.s.forEach(f);});}
+  each(function(r){minx=Math.min(minx,r.x-r.w/2);miny=Math.min(miny,r.y-r.h/2);maxx=Math.max(maxx,r.x+r.w/2);maxy=Math.max(maxy,r.y+r.h/2);});
+  each(function(r){r.x+=PAD-minx;r.y+=PAD-miny;});
+  L.W=Math.ceil(maxx-minx+PAD*2);L.H=Math.ceil(maxy-miny+PAD*2);return L;
+}
+function thread(a,b,on){var mx=(a.x+b.x)/2,my=(a.y+b.y)/2,dx=b.x-a.x,dy=b.y-a.y,len=Math.sqrt(dx*dx+dy*dy)||1,sag=Math.min(26,len*.12);
+  var cx=mx-dy/len*sag,cy=my+dx/len*sag+sag*.4;
+  return '<path d="M'+a.x.toFixed(1)+' '+a.y.toFixed(1)+'Q'+cx.toFixed(1)+' '+cy.toFixed(1)+' '+b.x.toFixed(1)+' '+b.y.toFixed(1)+'" fill="none" stroke="'+(on?'#D4AE5A':'#5B6780')+'" stroke-width="'+(on?2.6:1.6)+'"'+(on?'':' stroke-dasharray="5 5"')+'/>';}
+function curTask(){ensureTasks();var t=null;S.tasks.forEach(function(x){if(x.id===viewTasks.cur)t=x;});return t||S.tasks[0]||null;}
+function viewTasks(){
+  ensureTasks();var t=curTask(),td=today();
+  var chips='<div class="tasktabs"><div class="scroll">'+S.tasks.map(function(x){return '<button class="chipbtn" style="white-space:nowrap" data-act="tsel" data-v="'+x.id+'" aria-pressed="'+(t&&x.id===t.id)+'">'+esc(x.title)+(x.sample?' · пример':'')+'</button>';}).join('')+'</div>'+
+    '<button class="plus" data-act="tnew" aria-label="Новая задача">+</button></div>';
+  if(!t)return chips+'<div class="card"><p class="muted">Задач пока нет. Нажмите «+», чтобы разбить свою цель на блоки и шаги.</p></div>';
+  viewTasks.cur=t.id;
+  var mode=viewTasks.mode||'board',ds=taskSteps(t),due=dueSteps(t);
+  var top='<div class="seg" role="group" aria-label="Вид"><button data-act="tmode" data-v="board" aria-pressed="'+(mode==='board')+'">Доска</button><button data-act="tmode" data-v="list" aria-pressed="'+(mode==='list')+'">Список</button></div>';
+  var dueC=due.length?'<div class="banner"><p class="small"><b>На сегодня:</b> '+due.map(function(x){return esc(x.s.name);}).join('; ')+'</p></div>':'';
+  var body;
+  if(mode==='board'){var L=layoutTask(t),z=viewTasks.z||0.75,svg='',cards='';
+    t.blocks.forEach(function(b,bi){var B=L.b[bi],allDone=b.steps.length&&b.steps.every(function(s){return s.done;});
+      svg+=thread(L.c,B,allDone);
+      b.steps.forEach(function(s,si){var P=si===0?B:L.b[bi].s[si-1],Sx=B.s[si];svg+=thread(P,Sx,s.done);});});
+    function card(r,cls,inner,act){return '<button class="bc '+cls+'" style="left:'+(r.x-r.w/2).toFixed(1)+'px;top:'+(r.y-r.h/2).toFixed(1)+'px;width:'+r.w+'px;height:'+r.h+'px" '+act+'><span class="pin-tack"></span>'+inner+'</button>';}
+    cards+=card(L.c,'center','<span class="ttl">'+esc(t.title)+'</span>','data-act="tcenter"');
+    t.blocks.forEach(function(b,bi){var B=L.b[bi],c=0;b.steps.forEach(function(s){if(s.done)c++;});
+      cards+=card(B,'block','<span class="ttl">'+esc(b.name)+'</span><span class="bd">'+c+' из '+b.steps.length+'</span>','data-act="tblock" data-b="'+bi+'"');
+      b.steps.forEach(function(s,si){var lk=stepLocked(b,si),cls=s.done?'done':lk?'locked':(s.date&&s.date<=td?'due':'');
+        cards+=card(B.s[si],cls,'<span class="ttl">'+esc(s.name)+'</span><span class="bd">'+(s.date?fmtDate(s.date):'без даты')+(s.time?' · '+esc(s.time):'')+'</span>','data-act="tstep" data-b="'+bi+'" data-s="'+si+'"');});});
+    body='<div class="row" style="justify-content:space-between"><span class="muted small">Двигайте доску пальцем, масштаб двумя пальцами или кнопками.</span><span class="row"><button class="btn ghost" data-act="tzoom" data-v="-1" aria-label="Уменьшить">−</button><button class="btn ghost" data-act="tzoom" data-v="1" aria-label="Увеличить">+</button></span></div>'+
+      '<div class="board-wrap" id="bw"><div id="bsz" style="position:relative;width:'+Math.ceil(L.W*z)+'px;height:'+Math.ceil(L.H*z)+'px"><div class="board" id="bd" data-w="'+L.W+'" data-h="'+L.H+'" data-cx="'+L.c.x+'" data-cy="'+L.c.y+'" style="width:'+L.W+'px;height:'+L.H+'px;transform:scale('+z+')"><svg class="threads" width="'+L.W+'" height="'+L.H+'" viewBox="0 0 '+L.W+' '+L.H+'" aria-hidden="true">'+svg+'</svg>'+cards+'</div></div></div>';
+  }else{
+    body=t.blocks.map(function(b,bi){var c=0;b.steps.forEach(function(s){if(s.done)c++;});
+      return '<div class="card"><h3>'+esc(b.name)+' · '+c+' из '+b.steps.length+'</h3><div>'+b.steps.map(function(s,si){var lk=stepLocked(b,si),dueS=!s.done&&!lk&&s.date&&s.date<=td;
+        return '<div class="steprow"><button class="chk" data-act="tcheck" data-b="'+bi+'" data-s="'+si+'" aria-pressed="'+(!!s.done)+'" aria-label="'+(s.done?'Снять отметку':'Отметить выполненным')+'"'+(lk&&!s.done?' disabled':'')+'>'+(s.done?'✓':'')+'</button>'+
+          '<button class="linkbtn" style="text-align:left;text-decoration:none;color:var(--fg);padding:0;flex:1;font-size:15px" data-act="tstep" data-b="'+bi+'" data-s="'+si+'">'+esc(s.name)+'<br><span class="muted small">'+(s.date?fmtDate(s.date):'без даты')+(s.time?' · '+esc(s.time):'')+(dueS?' · <b style="color:var(--warn)">сегодня</b>':'')+(lk&&!s.done?' · после предыдущего шага':'')+'</span></button></div>';}).join('')+'</div></div>';}).join('');
+  }
+  var foot='<div class="card"><div><div class="row" style="justify-content:space-between;margin-bottom:6px"><span class="small">Шагов выполнено</span><b class="small">'+ds[0]+' из '+ds[1]+'</b></div><div class="bar"><i style="width:'+(ds[1]?ds[0]/ds[1]*100:0)+'%"></i></div></div>'+
+    '<p class="muted small">Каждый выполненный шаг растит дерево привычек на 20 см. Следующий шаг в блоке открывается после предыдущего.</p>'+
+    '<div class="row"><button class="btn" data-act="tedit">Изменить задачу</button><button class="btn ghost" data-act="tdel">'+(viewTasks.delAsk?'Точно удалить?':'Удалить задачу')+'</button></div></div>';
+  return chips+top+dueC+body+foot;
+}
+viewTasks.mode='board';
+function boardAfterRender(){var w=$('#bw'),bd=$('#bd');if(!w||!bd)return;var z=viewTasks.z||0.75;
+  if(viewTasks.scroll&&viewTasks.scroll.id===viewTasks.cur){w.scrollLeft=viewTasks.scroll.x;w.scrollTop=viewTasks.scroll.y;}
+  else{w.scrollLeft=Math.max(0,(+bd.dataset.cx)*z-w.clientWidth/2);w.scrollTop=Math.max(0,(+bd.dataset.cy)*z-w.clientHeight/2);}
+  w.onscroll=function(){viewTasks.scroll={id:viewTasks.cur,x:w.scrollLeft,y:w.scrollTop};};}
+function setZoom(nz,fx,fy){var w=$('#bw'),bd=$('#bd'),sz=$('#bsz');if(!w||!bd)return;var z=viewTasks.z||0.75;nz=Math.max(0.35,Math.min(1.6,nz));if(Math.abs(nz-z)<0.001)return;
+  if(fx==null){fx=w.clientWidth/2;fy=w.clientHeight/2;}
+  var px=(w.scrollLeft+fx)/z,py=(w.scrollTop+fy)/z;viewTasks.z=nz;
+  bd.style.transform='scale('+nz+')';sz.style.width=Math.ceil(+bd.dataset.w*nz)+'px';sz.style.height=Math.ceil(+bd.dataset.h*nz)+'px';
+  w.scrollLeft=px*nz-fx;w.scrollTop=py*nz-fy;}
+(function(){var d0=0,z0=1,mid=null;
+  function dist(t){var a=t[0],b=t[1];return Math.hypot(a.clientX-b.clientX,a.clientY-b.clientY);}
+  document.addEventListener('touchstart',function(e){var w=e.target.closest&&e.target.closest('#bw');if(!w||e.touches.length!==2)return;d0=dist(e.touches);z0=viewTasks.z||0.75;var r=w.getBoundingClientRect();mid=[(e.touches[0].clientX+e.touches[1].clientX)/2-r.left,(e.touches[0].clientY+e.touches[1].clientY)/2-r.top];},{passive:true});
+  document.addEventListener('touchmove',function(e){if(!d0||e.touches.length!==2)return;var w=e.target.closest&&e.target.closest('#bw');if(!w)return;e.preventDefault();setZoom(z0*dist(e.touches)/d0,mid[0],mid[1]);},{passive:false});
+  document.addEventListener('touchend',function(e){if(e.touches.length<2)d0=0;},{passive:true});
+})();
+/* редактор задачи */
+function edBlank(){return {title:'',blocks:[{name:'',steps:[{name:'',date:'',time:''}]}]};}
+function edFrom(t){return {id:t.id,sample:t.sample,title:t.title,blocks:t.blocks.map(function(b){return {id:b.id,name:b.name,steps:b.steps.map(function(s){return {id:s.id,name:s.name,date:s.date||'',time:s.time||'',done:!!s.done,doneDate:s.doneDate||''};})};})};}
+function edSheet(){var ed=viewTasks.ed;
+  return '<div class="sheet" role="dialog" aria-modal="true" aria-label="Задача"><h2>'+(ed.id?'Изменить задачу':'Новая задача')+'</h2>'+
+   '<div class="form"><label for="te_title">Задача или цель<input type="text" id="te_title" data-ed="title" maxlength="80" value="'+esc(ed.title)+'" placeholder="Например, сменить работу"></label></div>'+
+   '<p class="muted small">Разбейте задачу на крупные блоки, а блоки на маленькие шаги. Спросите себя: какой первый маленький шаг? Что нужно сделать до этого? Шаги в блоке выполняются по порядку.</p>'+
+   ed.blocks.map(function(b,bi){return '<div class="edblock"><div class="edstep"><input type="text" data-ed="b:'+bi+'" maxlength="60" value="'+esc(b.name)+'" placeholder="Блок '+(bi+1)+', например «Подготовка»" aria-label="Название блока '+(bi+1)+'"><button class="xbtn" data-act="edbdel" data-v="'+bi+'" aria-label="Удалить блок">✕</button></div>'+
+     b.steps.map(function(s,si){return '<div class="edstep"><input type="text" data-ed="s:'+bi+':'+si+'" maxlength="80" value="'+esc(s.name)+'" placeholder="'+(si===0?'Какой первый маленький шаг?':'Что дальше?')+'" aria-label="Шаг '+(si+1)+'"><button class="xbtn" data-act="edsdel" data-b="'+bi+'" data-s="'+si+'" aria-label="Удалить шаг">✕</button>'+
+       '<div class="when"><input type="date" data-ed="d:'+bi+':'+si+'" value="'+esc(s.date)+'" aria-label="Дата шага"><input type="time" data-ed="t:'+bi+':'+si+'" value="'+esc(s.time)+'" aria-label="Время шага, по желанию"></div></div>';}).join('')+
+     '<button class="btn ghost" data-act="edsadd" data-v="'+bi+'">+ Шаг</button></div>';}).join('')+
+   '<button class="btn" data-act="edbadd">+ Блок</button>'+
+   '<div class="row"><button class="btn primary" data-act="edsave">Сохранить задачу</button><button class="btn ghost" data-act="edcancel">Отмена</button></div></div>';}
+function edRedraw(){var sh=$('#modal .sheet'),y=sh?sh.scrollTop:0;modal('tedit');var s2=$('#modal .sheet');if(s2)s2.scrollTop=y;}
+function edSave(){var ed=viewTasks.ed,title=(ed.title||'').trim();if(!title){toast('Напишите, какую задачу решаем');return;}
+  var cursor=0,blocks=[];
+  ed.blocks.forEach(function(b,bi){var steps=b.steps.filter(function(s){return (s.name||'').trim();}).map(function(s){
+      var date=s.date;if(!date){date=plusDays(cursor);}cursor=Math.max(cursor,daysBetween(today(),date)+1);
+      return {id:s.id||uid('s'),name:s.name.trim(),date:date,time:s.time||'',done:!!s.done,doneDate:s.doneDate||''};});
+    var name=(b.name||'').trim();if(!steps.length&&!name)return;
+    blocks.push({id:b.id||uid('b'),name:name||'Блок '+(blocks.length+1),steps:steps});});
+  if(!blocks.some(function(b){return b.steps.length;})){toast('Добавьте хотя бы один шаг');return;}
+  var t={id:ed.id||uid('t'),title:title,blocks:blocks};
+  if(ed.id){S.tasks=S.tasks.map(function(x){return x.id===ed.id?t:x;});}else S.tasks.push(t);
+  viewTasks.cur=t.id;viewTasks.ed=null;viewTasks.scroll=null;save();closeModal();render();toast(ed.id?'Задача обновлена':'Задача добавлена на доску');}
+function stepSheet(){var t=curTask(),sel=viewTasks.sel;if(!t||!sel)return '';var b=t.blocks[sel.b],s=b&&b.steps[sel.s];if(!s)return '';var lk=stepLocked(b,sel.s);
+  return '<div class="sheet" role="dialog" aria-modal="true" aria-label="Шаг"><span class="fmtname">'+esc(b.name)+' · шаг '+(sel.s+1)+' из '+b.steps.length+'</span><h2>'+esc(s.name)+'</h2>'+
+   (s.done?'<p class="small">Выполнено'+(s.doneDate?' '+fmtDate(s.doneDate):'')+'.</p>':lk?'<p class="small muted">Сначала выполните предыдущий шаг: «'+esc(b.steps[sel.s-1].name)+'».</p>':'')+
+   '<div class="form"><label for="sd">Дата<input type="date" id="sd" value="'+esc(s.date||'')+'"></label><label for="stt">Время, по желанию<input type="time" id="stt" value="'+esc(s.time||'')+'"></label></div>'+
+   '<div class="row">'+(s.done?'<button class="btn" data-act="sundo">Снять отметку</button>':'<button class="btn primary" data-act="sdone"'+(lk?' disabled':'')+'>Готово</button>')+
+   '<button class="btn" data-act="ssave">Сохранить дату</button><button class="btn ghost" data-act="close">Закрыть</button></div></div>';}
+function markStep(t,bi,si,on){var b=t.blocks[bi],s=b.steps[si];
+  if(on){if(stepLocked(b,si)){toast('Сначала предыдущий шаг');return false;}s.done=true;s.doneDate=today();}
+  else{if(b.steps[si+1]&&b.steps[si+1].done){toast('Сначала снимите отметку со следующего шага');return false;}s.done=false;s.doneDate='';}
+  save();if(on){var all=taskSteps(t);toast(all[0]===all[1]?'Задача выполнена целиком!':'Шаг выполнен. Дерево подросло на 20 см');}return true;}
 
 function viewStats(){
   var now=new Date(),y=now.getFullYear(),mo=now.getMonth(),first=new Date(y,mo,1),len=new Date(y,mo+1,0).getDate(),off=wd(first)-1,td=today();
@@ -394,16 +775,30 @@ function viewStats(){
     var leaf=S.habits.some(function(h){return h.checks[ds];});if(leaf)dots+='<i class="leaf"></i>';
     cells+='<div class="d'+(ds===td?' today':'')+'"><span>'+k+'</span><span class="dots">'+dots+'</span></div>';
   }
-  /* график активности за 30 дней: ответы на вопросы, 0..2 в день */
-  var W=300,Hh=110,bw=W/30,bars='',tot=0,i2;
-  for(i2=29;i2>=0;i2--){var dd=ymd(addDays(new Date(),-i2)),v=(done(dd,'m')?1:0)+(done(dd,'e')?1:0);tot+=v;var idx=29-i2;
-    bars+='<rect x="'+(idx*bw+2).toFixed(1)+'" y="'+(Hh-8-v*40)+'" width="'+(bw-4).toFixed(1)+'" height="'+(v*40+(v?0:2))+'" rx="2" style="fill:'+(v?'var(--gold)':'var(--line)')+'"/>';}
-  var daysWith=Object.keys(S.days).filter(function(k2){return done(k2,'m')||done(k2,'e');}).length;
-  return '<h2>Статистика</h2><div class="totals"><div><b>'+daysWith+'</b><span>дней с записями</span></div><div><b>'+sessions()*3+'</b><span>ответов</span></div><div><b>'+totalChecks()+'</b><span>отметок привычек</span></div></div>'+
+  /* один график за 30 дней с переключателем: активность, интерес, откровение */
+  var met=viewStats.metric||'act',vals=[],labels=[],i2,tot=0;
+  var passDays={};LEARN.forEach(function(b){var st=S.learn[b.id];if(st&&st.passed&&st.date)passDays[st.date]=(passDays[st.date]||0)+1;});
+  for(i2=29;i2>=0;i2--){var dd=ymd(addDays(new Date(),-i2)),v=0;
+    if(met==='act')v=(done(dd,'m')?1:0)+(done(dd,'e')?1:0);
+    else if(met==='int')v=passDays[dd]||0;
+    else entriesOf(S.days[dd]).forEach(function(e){v+=entryChars(e);});
+    vals.push(v);labels.push(dd);tot+=v;}
+  var mx=met==='act'?2:Math.max(1,Math.max.apply(null,vals)),W=300,Hh=110,bw=W/30,plotH=80,bars='';
+  vals.forEach(function(v,idx){var hgt=v?Math.max(3,v/mx*plotH):2;bars+='<rect x="'+(idx*bw+2).toFixed(1)+'" y="'+(Hh-8-hgt).toFixed(1)+'" width="'+(bw-4).toFixed(1)+'" height="'+hgt.toFixed(1)+'" rx="2" style="fill:'+(v?'var(--gold)':'var(--line)')+'"><title>'+fmtDate(labels[idx])+': '+v+'</title></rect>';});
+  var MET={act:['Активность','Ответы на утренние и вечерние вопросы за 30 дней.','2 раза в день','Сеансов за 30 дней: '+tot],
+           int:['Интерес','Пройденные учебные блоки по дням за 30 дней.','блоков в день: '+mx,'Блоков за 30 дней: '+tot],
+           rev:['Откровение','Сколько знаков вы написали в записях для себя, без коротких ответов.','знаков в день: '+mx,'Знаков за 30 дней: '+tot]}[met];
+  var daysWith=Object.keys(S.days).filter(function(k2){return done(k2,'m')||done(k2,'e')||entriesOf(S.days[k2]).length;}).length;
+  var tdone=(S.tasks||[]).filter(function(t){var x=taskSteps(t);return x[1]&&x[0]===x[1];}).length;
+  return '<h2>Статистика</h2><div class="totals"><div><b>'+daysWith+'</b><span>дней с записями</span></div><div><b>'+sessions()*3+'</b><span>ответов</span></div><div><b>'+totalChecks()+'</b><span>отметок и шагов</span></div></div>'+
    '<div class="card"><h3>'+MONTHS[mo]+' '+y+'</h3><div class="cal">'+cells+'</div><div class="legend"><span><i></i>дневник</span><span><i class="leaf"></i>привычка</span></div></div>'+
-   '<div class="card"><h3>Активность за 30 дней</h3><svg viewBox="0 0 '+W+' '+(Hh+4)+'" role="img" aria-label="Столбики: сколько раз в день отвечали на вопросы">'+
-   '<line x1="0" x2="'+W+'" y1="'+(Hh-6)+'" y2="'+(Hh-6)+'" style="stroke:var(--line)"/><text x="0" y="12" font-size="10" style="fill:var(--muted)">2 раза в день</text><line x1="0" x2="'+W+'" y1="'+(Hh-8-80)+'" y2="'+(Hh-8-80)+'" stroke-dasharray="3 4" style="stroke:var(--line)"/>'+bars+'</svg>'+
-   '<p class="muted small">Сеансов за 30 дней: '+tot+'. Графики интереса и откровений появятся в бете.</p></div>';
+   '<div class="card"><div class="seg s3" style="grid-template-columns:repeat(3,1fr)" role="group" aria-label="График">'+
+     [['act','Активность'],['int','Интерес'],['rev','Откровение']].map(function(x){return '<button data-act="smet" data-v="'+x[0]+'" aria-pressed="'+(met===x[0])+'">'+x[1]+'</button>';}).join('')+'</div>'+
+   '<p class="small">'+MET[1]+'</p><svg viewBox="0 0 '+W+' '+(Hh+10)+'" role="img" aria-label="'+MET[0]+' за 30 дней, '+MET[3]+'">'+
+   '<line x1="0" x2="'+W+'" y1="'+(Hh-6)+'" y2="'+(Hh-6)+'" style="stroke:var(--line)"/><text x="0" y="12" font-size="10" style="fill:var(--muted)">'+MET[2]+'</text><line x1="0" x2="'+W+'" y1="'+(Hh-8-plotH)+'" y2="'+(Hh-8-plotH)+'" stroke-dasharray="3 4" style="stroke:var(--line)"/>'+bars+
+   '<text x="0" y="'+(Hh+7)+'" font-size="9" style="fill:var(--muted)">'+fmtDate(labels[0])+'</text><text x="'+W+'" y="'+(Hh+7)+'" font-size="9" text-anchor="end" style="fill:var(--muted)">сегодня</text></svg>'+
+   '<p class="muted small">'+MET[3]+'.</p></div>'+
+   '<div class="card"><p class="small">Учебных блоков пройдено: <b>'+learnCount()+' из '+LEARN.length+'</b></p><p class="small">Задач выполнено целиком: <b>'+tdone+'</b> · шагов: <b>'+stepsDone()+'</b></p></div>';
 }
 
 /* ---------- отрисовка ---------- */
@@ -413,12 +808,12 @@ function renderTabs(){
 }
 function render(){
   var r=route(),v=$('#view');
-  v.innerHTML=({quotes:viewQuotes,diary:viewDiary,mosaic:viewMosaic,habits:viewHabits,stats:viewStats})[r]();
+  v.innerHTML=({quotes:viewLearn,diary:viewDiary,mosaic:viewMosaic,habits:viewHabits,stats:viewStats})[r]();
   $('#chipPhase').textContent=phase()==='m'?'Утро':'Вечер';
   $('#chipSample').hidden=!S.sample;
   renderTabs();
-  if(r==='diary'){var inp=$('#ans');if(inp&&!render.keep){} }
-  if(S.welcome&&!$('#modal').firstChild)modal('welcome');
+  if(r==='habits'&&viewHabits.tab==='t'&&viewTasks.mode!=='list')boardAfterRender();
+  if(S.welcome&&!$('#modal').firstChild&&!locked)modal('welcome');
 }
 function closeModal(){$('#modal').innerHTML='';}
 function modal(kind){
@@ -428,8 +823,12 @@ function modal(kind){
      '<ul class="plain"><li>Данные хранятся только в этом браузере, ничего не отправляется.</li><li>Комментарии наставника заготовлены заранее.</li>'+(NATIVE?'<li>Напоминания, будильник и календарь работают по-настоящему.</li>':'<li>Будильники в демо имитируются.</li>')+'</ul>'+
      '<button class="btn primary" data-act="sample">Посмотреть с примером за 3 недели</button><button class="btn" data-act="fresh">Начать с нуля</button></div>';
   }else if(kind==='settings'){
-    h='<div class="sheet" role="dialog" aria-modal="true" aria-label="Данные и настройки демо"><h2>Данные демо</h2>'+
-     '<p class="small muted">Всё хранится только в этом браузере. Аккаунтов и серверов в демо нет.</p>'+
+    h='<div class="sheet" role="dialog" aria-modal="true" aria-label="Настройки"><h2>Настройки</h2>'+
+     '<p class="small muted">Всё хранится только на этом телефоне. Аккаунтов и серверов нет.</p>'+
+     '<div class="card" style="margin:0"><h3>Вход</h3><div class="switch"><span>Код из 4 цифр при каждом открытии</span><button class="chipbtn" data-act="pin" aria-pressed="'+!!(S.pin&&S.pin.h)+'">'+(S.pin&&S.pin.h?'Включено':'Выключено')+'</button></div>'+
+       (S.pin&&S.pin.h?'<button class="btn ghost" data-act="pinchange">Изменить код</button>':'')+
+       '<p class="muted small">Если включён отпечаток, код остаётся запасным способом входа. Забытый код восстановить нельзя: останется сбросить приложение и вернуть записи из файла копии.</p></div>'+
+     '<p class="muted small">Последняя резервная копия: '+(S.lastBackup?S.lastBackup.split('-').reverse().join('.'):'ещё не сохранялась')+'.</p>'+
      '<div><div class="muted small" style="margin-bottom:6px">Время суток для проверки</div><div class="seg" style="grid-template-columns:repeat(3,1fr)">'+
        [['auto','Авто'],['m','Утро'],['e','Вечер']].map(function(x){return '<button data-act="tm" data-v="'+x[0]+'" aria-pressed="'+(S.timeMode===x[0])+'">'+x[1]+'</button>';}).join('')+'</div></div>'+
      (NATIVE?'<p class="muted small">Версия приложения: '+esc((NATIVE.version&&NATIVE.version())||'1.0')+'</p>':'')+
@@ -447,13 +846,24 @@ function modal(kind){
      '<button class="btn" data-act="erase">'+(modal.erase?'Точно стереть всё?':'Стереть все данные')+'</button>'+
      '<button class="btn primary" data-act="close">Закрыть</button></div>';
   }else if(kind==='lock'){
-    h='<div class="sheet" role="dialog" aria-modal="true" aria-label="Вход"><h2>Imast</h2><p class="muted small">Дневник защищён отпечатком.</p><button class="btn primary" data-act="unlock">Войти</button></div>';
+    if(S.pin&&S.pin.h){if(!pinState)pinState={mode:'unlock',buf:'',msg:'',tries:0,until:0};
+      h='<div class="sheet" role="dialog" aria-modal="true" aria-label="Вход"><h2 style="text-align:center">Imast</h2><div id="pinbox">'+pinInner()+'</div><button class="linkbtn" data-act="forgot">Забыли код?</button></div>';}
+    else h='<div class="sheet" role="dialog" aria-modal="true" aria-label="Вход"><h2>Imast</h2><p class="muted small">Дневник защищён отпечатком.</p><button class="btn primary" data-act="unlock">Войти</button></div>';
+  }else if(kind==='pin'){
+    h='<div class="sheet" role="dialog" aria-modal="true" aria-label="Код входа"><h2 style="text-align:center">Код входа</h2><div id="pinbox">'+pinInner()+'</div><button class="btn ghost" data-act="pincancel">Отмена</button></div>';
+  }else if(kind==='forgot'){
+    h='<div class="sheet" role="dialog" aria-modal="true" aria-label="Забыли код"><h2>Забыли код?</h2><p>Восстановить код нельзя, иначе защита теряла бы смысл.</p><p class="small">Можно сбросить приложение: все записи, привычки и задачи на телефоне сотрутся. После сброса верните данные из файла резервной копии в настройках.</p>'+
+     '<button class="btn" data-act="reset">'+(modal.reset?'Точно стереть всё?':'Сбросить приложение')+'</button><button class="btn primary" data-act="forgotback">Вернуться к вводу кода</button></div>';
+  }else if(kind==='tedit'){
+    h=edSheet();
+  }else if(kind==='step'){
+    h=stepSheet();
   }else if(kind==='perm'){
     h='<div class="sheet" role="dialog" aria-modal="true" aria-label="Разрешение"><h2>Напоминания</h2><p>'+(NATIVE?'Imast будет присылать уведомление в выбранное время и дни.':'Imast просит разрешение поставить будильник и событие в календаре для этой привычки.')+'</p>'+(NATIVE?'<p class="muted small">Сейчас Android спросит разрешение на уведомления. Отозвать его можно в настройках телефона.</p>':'<p class="muted small">В демо это имитация: на вашем устройстве ничего не создаётся. В приложении для Android разрешение запрашивает система.</p>')+''+
      '<button class="btn primary" data-act="permyes">Разрешить</button><button class="btn" data-act="permno">Не сейчас</button></div>';
   }
-  $('#modal').innerHTML='<div class="overlay"'+(kind==='lock'?' style="background:#0E1526"':'')+'>'+h+'</div>';
-  var b=$('#modal .btn');if(b)b.focus();
+  $('#modal').innerHTML='<div class="overlay"'+((kind==='lock'||(kind==='forgot'&&locked))?' style="background:#0E1526;align-items:center"':'')+'>'+h+'</div>';
+  if(kind!=='tedit'){var b=$('#modal .btn,#modal .keypad button');if(b)b.focus();}
 }
 
 /* ---------- пример данных ---------- */
@@ -464,13 +874,19 @@ function seed(){
   var E1=['Сделал отчёт','Дошёл до зала','Прочёл главу','Поговорил спокойно','Закончил задачу'];
   var E2=['Отложил звонок','Сорвался на мелочи','Сидел в телефоне','Поздно лёг','Спешил'];
   var E3=['Лечь раньше','Начать с важного','Меньше новостей','Прогулка утром','Один шаг сразу'];
+  var ENT=[
+    {f:'day',v:{s:'Сорвался на коллегу из-за мелочи на совещании.',a:'Устал и не выспался, а реакцию выбрал сам. Зависело от меня, как ответить.',c:'Перед ответом делать паузу и спрашивать себя, что тут в моей власти.'}},
+    {f:'topic',v:{h:'Страх перемен',s:'Боюсь не того, что случится, а того, что я себе представляю.',a:'Почти ничего из того, чего я боялся при переезде, не случилось. Тревога была больше реальности.',c:'Проверять страх фактами: что уже произошло на самом деле?'}},
+    {f:'plan',v:{h:'Неделя без телефона перед сном',x:'Откладывать телефон в 23:00 и читать 20 минут. Жду, что легче будет вставать.',z:'Пойму по утрам: если три дня подряд встану без будильника.'}},
+    {f:'free',v:{t:'Сегодня впервые за долгое время не спешил. Прошёл пешком до работы и заметил, что утро красивое. Хочу запомнить это чувство спокойствия.'}}];
   var s=7;function r(n){s=(s*1103515245+12345)%2147483648;return s%n;}
   S.days={};S.habits=[];
   for(var i=21;i>=1;i--){
     var d=ymd(addDays(new Date(),-i)),rr={};
     if(r(10)<9)rr.m=[A1[r(6)],A2[r(6)],A3[r(6)]];
     if(r(10)<7){rr.e=[E1[r(5)],E2[r(5)],E3[r(5)]];rr.mentor=mentor(rr.e.join(' '));}
-    if(rr.m||rr.e)S.days[d]=rr;
+    if(r(10)<5)rr.entries=[ENT[r(ENT.length)]].map(function(e){return {f:e.f,v:Object.assign({},e.v),t:'21:'+pad(10+r(40))};});
+    if(rr.m||rr.e||rr.entries)S.days[d]=rr;
   }
   var st=ymd(addDays(new Date(),-21));
   var h1={id:'h'+Date.now(),name:'Зарядка',time:'07:30',days:[1,2,3,4,5],start:st,notify:false,checks:{}};
@@ -502,18 +918,67 @@ document.addEventListener('click',function(e){
       save();if(NATIVE&&NATIVE.markAnswered)NATIVE.markAnswered(wiz.sess,d);render();toast('Записано. Открыт ещё один кубик мозаики');}
   }
   else if(a==='mentor'){var r3=rec(d);r3.mentor=mentor(entryText(r3).concat(r3.m||[],r3.e||[]).join(' '));save();render();}
-  else if(a==='eedit'){var r4=rec(d);viewDiary.edit=true;viewDiary.draft=r4.entry?{s:r4.entry.s,a:r4.entry.a,c:r4.entry.c}:null;render();}
+  /* записи дневника */
+  else if(a==='enew'){viewDiary.ed={f:'day',idx:null,v:{}};render();var f0=$('#eform');if(f0)f0.scrollIntoView({block:'start'});}
+  else if(a==='efmt'){if(viewDiary.ed){viewDiary.ed.f=t.dataset.v;render();}}
+  else if(a==='eopen'){var r5=rec(d),e5=entriesOf(r5)[+t.dataset.v];if(e5){viewDiary.ed={f:e5.f,idx:+t.dataset.v,v:Object.assign({},e5.v)};render();var f1=$('#eform');if(f1)f1.scrollIntoView({block:'start'});}}
+  else if(a==='ecancel'){viewDiary.ed=null;render();}
+  else if(a==='edel'){var ed6=viewDiary.ed;if(!ed6)return;if(!ed6.delAsk){ed6.delAsk=true;render();return;}
+    var r6=rec(d);if(r6.entries){r6.entries.splice(ed6.idx,1);if(!r6.entries.length)delete r6.entries;}viewDiary.ed=null;save();render();toast('Запись удалена');}
+  /* обучение */
+  else if(a==='lopen'){var li=+t.dataset.v;if(!learnOpen(li))return;viewLearn.open=li;viewLearn.quiz=null;render();window.scrollTo(0,0);}
+  else if(a==='lback'){viewLearn.open=null;viewLearn.quiz=null;render();window.scrollTo(0,0);}
+  else if(a==='qstart'||a==='qretry'){viewLearn.quiz={i:0,score:0,pick:null};render();window.scrollTo(0,0);}
+  else if(a==='qpick'){var qz=viewLearn.quiz,bl=LEARN[viewLearn.open];if(!qz||qz.pick!=null)return;qz.pick=+t.dataset.v;if(qz.pick===bl.quiz[qz.i].a)qz.score++;render();}
+  else if(a==='qnext'){var qz2=viewLearn.quiz,bl2=LEARN[viewLearn.open];if(!qz2)return;qz2.i++;qz2.pick=null;
+    if(qz2.i>=bl2.quiz.length){var stl=S.learn[bl2.id]||{};stl.best=Math.max(stl.best||0,qz2.score);stl.tries=(stl.tries||0)+1;if(qz2.score>=4&&!stl.passed){stl.passed=true;stl.date=today();}S.learn[bl2.id]=stl;save();}
+    render();window.scrollTo(0,0);}
+  else if(a==='bsnooze'){S.backupSnooze=plusDays(7);save();render();}
+  /* задачи */
+  else if(a==='gotasks'){viewHabits.tab='t';go('habits');}
+  else if(a==='htab'){viewHabits.tab=t.dataset.v;viewTasks.delAsk=false;render();}
+  else if(a==='tsel'){viewTasks.cur=t.dataset.v;viewTasks.delAsk=false;render();}
+  else if(a==='tnew'){viewTasks.ed=edBlank();modal('tedit');}
+  else if(a==='tmode'){viewTasks.mode=t.dataset.v;render();}
+  else if(a==='tzoom'){setZoom((viewTasks.z||0.75)*(+t.dataset.v>0?1.25:0.8));}
+  else if(a==='tcenter'||a==='tedit'){var tc=curTask();if(tc){viewTasks.ed=edFrom(tc);modal('tedit');}}
+  else if(a==='tblock'){var tb=curTask(),bb=tb&&tb.blocks[+t.dataset.b];if(bb){var c7=bb.steps.filter(function(x){return x.done;}).length;toast(bb.name+': выполнено '+c7+' из '+bb.steps.length);}}
+  else if(a==='tstep'){viewTasks.sel={b:+t.dataset.b,s:+t.dataset.s};modal('step');}
+  else if(a==='tcheck'){var tk=curTask(),bi8=+t.dataset.b,si8=+t.dataset.s;if(tk&&markStep(tk,bi8,si8,!tk.blocks[bi8].steps[si8].done))render();}
+  else if(a==='tdel'){if(!viewTasks.delAsk){viewTasks.delAsk=true;render();return;}var cur9=curTask();S.tasks=S.tasks.filter(function(x){return !cur9||x.id!==cur9.id;});viewTasks.cur=null;viewTasks.delAsk=false;viewTasks.scroll=null;save();render();toast('Задача удалена');}
+  else if(a==='edbadd'){viewTasks.ed.blocks.push({name:'',steps:[{name:'',date:'',time:''}]});edRedraw();}
+  else if(a==='edbdel'){viewTasks.ed.blocks.splice(+t.dataset.v,1);if(!viewTasks.ed.blocks.length)viewTasks.ed.blocks.push({name:'',steps:[{name:'',date:'',time:''}]});edRedraw();}
+  else if(a==='edsadd'){viewTasks.ed.blocks[+t.dataset.v].steps.push({name:'',date:'',time:''});edRedraw();}
+  else if(a==='edsdel'){viewTasks.ed.blocks[+t.dataset.b].steps.splice(+t.dataset.s,1);edRedraw();}
+  else if(a==='edsave'){edSave();}
+  else if(a==='edcancel'){viewTasks.ed=null;closeModal();}
+  else if(a==='sdone'||a==='sundo'){var ts=curTask(),sl=viewTasks.sel;if(ts&&sl&&markStep(ts,sl.b,sl.s,a==='sdone')){closeModal();render();}}
+  else if(a==='ssave'){var tss=curTask(),sl2=viewTasks.sel;if(tss&&sl2){var sx=tss.blocks[sl2.b].steps[sl2.s];sx.date=$('#sd').value||sx.date;sx.time=$('#stt').value||'';save();closeModal();render();toast('Дата сохранена');}}
+  /* статистика */
+  else if(a==='smet'){viewStats.metric=t.dataset.v;render();}
+  /* код входа */
+  else if(a==='pin'){pinState={mode:(S.pin&&S.pin.h)?'verifyOff':'set1',buf:'',msg:''};modal('pin');}
+  else if(a==='pinchange'){pinState={mode:'verifyChange',buf:'',msg:''};modal('pin');}
+  else if(a==='pincancel'){pinState=null;modal('settings');}
+  else if(a==='kp'){pinDigit(t.dataset.v);}
+  else if(a==='kpdel'){if(pinState){pinState.buf=pinState.buf.slice(0,-1);redrawPin();}}
+  else if(a==='kpbio'){unlock();}
+  else if(a==='forgot'){modal.reset=false;modal('forgot');}
+  else if(a==='forgotback'){modal('lock');}
+  else if(a==='reset'){if(!modal.reset){modal.reset=true;modal('forgot');return;}
+    S.habits.forEach(function(x){habitOff(x.id);});S=blank();S.welcome=false;journalSync();save();widgetSync();modal.reset=false;locked=false;pinState=null;
+    wiz={sess:'m',i:0,ans:[]};viewDiary.ed=null;viewTasks.cur=null;closeModal();render();modal('settings');toast('Данные стёрты. Верните их из файла копии');}
   else if(a==='hadd'){viewHabits.form=true;viewHabits.days=[1,2,3,4,5];render();}
   else if(a==='hcancel'){viewHabits.form=false;render();}
   else if(a==='wday'){var k=+t.dataset.v,ix=viewHabits.days.indexOf(k);if(ix>=0)viewHabits.days.splice(ix,1);else viewHabits.days.push(k);t.setAttribute('aria-pressed',ix<0);}
   else if(a==='check'){var h=S.habits.filter(function(x){return x.id===t.dataset.id;})[0];if(h){if(h.checks[d])delete h.checks[d];else h.checks[d]=true;save();render();}}
   else if(a==='delhabit'){habitOff(t.dataset.id);S.habits=S.habits.filter(function(x){return x.id!==t.dataset.id;});save();render();}
-  else if(a==='hcal'||a==='halarm'){var hx=S.habits.filter(function(x){return x.id===t.dataset.id;})[0];if(hx&&NATIVE){var tt=hm(hx.time);
+  else if(a==='hcal'||a==='halarm'){var hx=S.habits.filter(function(x){return x.id===t.dataset.id;})[0];if(hx&&NATIVE){var tt=hm(hx.time);goingOut();
     if(a==='hcal')NATIVE.addCalendarEvent('Imast · '+hx.name,'Привычка из Imast',hx.start,tt[0],tt[1],30,hx.days.join(','));
     else NATIVE.setAlarmClock(tt[0],tt[1],'Imast · '+hx.name,hx.days.join(','));}}
   else if(a==='jr'){if(S.jr){S.jr=false;journalSync();save();modal('settings');}else{nPerm('notifications',function(ok){if(ok){S.jr=true;journalSync();save();toast('Напоминания о дневнике включены');}else toast('Уведомления запрещены в настройках Android');modal('settings');});}}
   else if(a==='bio'){if(S.bio){S.bio=false;save();modal('settings');}else if(NATIVE.hasPermission('biometric')){nCbs.auth=function(v){if(v===true){S.bio=true;save();toast('Вход по отпечатку включён');}modal('settings');};NATIVE.authenticate('Подтвердите отпечаток');}else toast('На телефоне не настроен отпечаток или лицо');}
-  else if(a==='perms'){NATIVE.openAppSettings();}
+  else if(a==='perms'){goingOut();NATIVE.openAppSettings();}
   else if(a==='export'){exportData();}
   else if(a==='pinw'){widgetSync();var ok=false;try{ok=NATIVE.requestPinWidget();}catch(e){}
     if(!ok)toast('Зажмите пустое место на главном экране → Виджеты → Imast');}
@@ -533,19 +998,33 @@ document.addEventListener('click',function(e){
   else if(a==='close'){closeModal();}
 });
 document.addEventListener('input',function(e){
-  if(/^e_[sac]$/.test(e.target.id)){viewDiary.draft=viewDiary.draft||{s:'',a:'',c:''};viewDiary.draft[e.target.id.slice(2)]=e.target.value;}
+  if(/^e_[a-z]$/.test(e.target.id)&&viewDiary.ed){viewDiary.ed.v[e.target.id.slice(2)]=e.target.value;}
+  var pth=e.target.getAttribute&&e.target.getAttribute('data-ed');
+  if(pth&&viewTasks.ed){var p=pth.split(':'),ed=viewTasks.ed,val=e.target.value;
+    if(p[0]==='title')ed.title=val;
+    else if(p[0]==='b')ed.blocks[+p[1]].name=val;
+    else{var stp=ed.blocks[+p[1]].steps[+p[2]];if(p[0]==='s')stp.name=val;else if(p[0]==='d')stp.date=val;else if(p[0]==='t')stp.time=val;}}
   if(e.target.id==='ans'){var v=e.target.value;$('#cnt').textContent=v.length+'/'+MAXLEN;$('#go').disabled=!v.trim();wiz.ans[wiz.i]=v;}
 });
 document.addEventListener('keydown',function(e){
   if(e.key==='Enter'&&e.target.id==='ans'){e.preventDefault();var b=$('#go');if(b&&!b.disabled)b.click();}
   if(e.key==='Escape'&&$('#modal').firstChild&&!S.welcome&&!locked)closeModal();
+  if(pinState&&$('#pinbox')&&!/INPUT|TEXTAREA/.test(e.target.tagName)){
+    if(/^[0-9]$/.test(e.key)){e.preventDefault();pinDigit(e.key);}
+    else if(e.key==='Backspace'){e.preventDefault();pinState.buf=pinState.buf.slice(0,-1);redrawPin();}}
 });
+document.addEventListener('click',function(e){if(e.target.closest&&e.target.closest('label[for="importf"]'))goingOut();},true);
+document.addEventListener('change',function(e){if(e.target&&(e.target.type==='date'||e.target.type==='time')){var ev=new Event('input',{bubbles:true});e.target.dispatchEvent(ev);}});
 document.addEventListener('submit',function(e){
-  if(e.target.id==='eform'){e.preventDefault();
-    var es=$('#e_s').value.trim(),ea=$('#e_a').value.trim(),ec=$('#e_c').value.trim();
-    if(!es){toast('Заполните хотя бы «Суть»');return;}
-    var re=rec(today());re.entry={s:es,a:ea,c:ec};re.mentor=mentor([es,ea,ec].concat(re.m||[],re.e||[]).join(' '));
-    viewDiary.edit=false;viewDiary.draft=null;save();render();toast('Запись сохранена');return;}
+  if(e.target.id==='eform'){e.preventDefault();var ed=viewDiary.ed;if(!ed)return;
+    var F=FORMATS[ed.f]||FORMATS.day,v={},any=false;
+    F.f.forEach(function(f){var el=$('#e_'+f[0]),x=el?el.value.trim():'';v[f[0]]=x;if(x)any=true;});
+    if(!any){toast('Запись пустая');return;}
+    var re=rec(today()),first=!entriesOf(re).length,now=new Date(),tm=pad(now.getHours())+':'+pad(now.getMinutes());
+    if(!re.entries)re.entries=[];
+    if(ed.idx==null)re.entries.push({f:ed.f,v:v,t:tm});else re.entries[ed.idx]={f:ed.f,v:v,t:re.entries[ed.idx].t||tm};
+    re.mentor=mentor(entryText(re).concat(re.m||[],re.e||[]).join(' '));
+    viewDiary.ed=null;save();render();toast(first&&ed.idx==null?'Запись сохранена. Открыт кубик мозаики':'Запись сохранена');return;}
   if(e.target.id==='hform'){e.preventDefault();
     var n=$('#hn').value.trim();if(!n)return;
     if(!viewHabits.days.length){toast('Выберите хотя бы один день недели');return;}
@@ -556,14 +1035,21 @@ window.addEventListener('hashchange',render);
 document.addEventListener('change',function(e){var t=e.target;if(t&&(t.id==='wmT'||t.id==='weT')&&t.value){
   if(t.id==='wmT')S.wm=t.value;else S.we=t.value;save();widgetSync();journalSync();toast('Время сохранено');modal('settings');return;}});
 document.addEventListener('change',function(e){if(!e.target||e.target.id!=='importf'||!e.target.files[0])return;var fr=new FileReader();
-  fr.onload=function(){try{var d=JSON.parse(fr.result);if(!d||typeof d.days!=='object')throw 0;S.habits.forEach(function(x){habitOff(x.id);});S=d;S.welcome=false;save();
+  fr.onload=function(){try{var d=JSON.parse(fr.result);if(!d||typeof d.days!=='object')throw 0;S.habits.forEach(function(x){habitOff(x.id);});S=Object.assign(blank(),d);migrate();S.welcome=false;viewDiary.ed=null;viewTasks.cur=null;save();
     S.habits.forEach(function(x){if(x.notify)habitOn(x);});journalSync();widgetSync();closeModal();render();toast('Данные восстановлены');}catch(err){toast('Это не похоже на копию Imast');}};
   fr.readAsText(e.target.files[0]);});
+/* заставка при запуске: знак, затем фраза; нажатие пропускает */
+function runSplash(next){var sp=$('#splash');if(!sp){next();return;}sp.hidden=false;var fin=false,tm;
+  function end(){if(fin)return;fin=true;clearTimeout(tm);sp.classList.add('hide');setTimeout(function(){sp.hidden=true;next();},450);}
+  setTimeout(function(){sp.classList.add('show-phrase');},900);tm=setTimeout(end,3600);
+  sp.addEventListener('click',end);}
 render();
 widgetSync();
 var L0=(NATIVE&&NATIVE.takeLaunch)?NATIVE.takeLaunch():'';
 if(L0&&!S.welcome)openSess(L0);
-if(NATIVE&&S.bio&&!S.welcome){locked=true;modal('lock');unlock();}
+var needLock=lockActive()&&!S.welcome;
+if(needLock){locked=true;pinState=null;modal('lock');}
+runSplash(function(){if(needLock&&locked&&NATIVE&&S.bio)unlock();});
 })();
 </script>
 

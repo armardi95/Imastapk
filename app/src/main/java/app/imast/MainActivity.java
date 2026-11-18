@@ -28,12 +28,14 @@ public class MainActivity extends Activity {
 
     private static final int REQ_PERMS = 10;
     private static final int REQ_FILE = 11;
+    private static final int REQ_SAVE = 12;
 
     private WebView web;
     private boolean fellBack = false;
     private String pendingPermission;
     private ValueCallback<Uri[]> fileCallback;
     private String launchSess = "";
+    private String pendingSave;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -171,6 +173,40 @@ public class MainActivity extends Activity {
         });
     }
 
+    // ---------- сохранение файла (резервная копия) ----------
+
+    /** Открывает системное окно «Сохранить как». Итог придёт в ImastNativeCallback('saved', true|false). */
+    void saveFile(String name, String text) {
+        pendingSave = text;
+        Intent i = new Intent(Intent.ACTION_CREATE_DOCUMENT)
+                .addCategory(Intent.CATEGORY_OPENABLE)
+                .setType("application/json")
+                .putExtra(Intent.EXTRA_TITLE, name == null || name.isEmpty() ? "imast.json" : name);
+        try {
+            startActivityForResult(i, REQ_SAVE);
+        } catch (Exception e) {
+            pendingSave = null;
+            callback("saved", "false");
+        }
+    }
+
+    private void writeSaved(Uri uri) {
+        String text = pendingSave;
+        pendingSave = null;
+        if (uri == null || text == null) {
+            callback("saved", "false");
+            return;
+        }
+        try (java.io.OutputStream os = getContentResolver().openOutputStream(uri, "wt")) {
+            if (os == null) throw new java.io.IOException("no stream");
+            os.write(text.getBytes(java.nio.charset.StandardCharsets.UTF_8));
+            os.flush();
+            callback("saved", "true");
+        } catch (Exception e) {
+            callback("saved", "false");
+        }
+    }
+
     // ---------- системные события ----------
 
     @Override
@@ -190,6 +226,16 @@ public class MainActivity extends Activity {
             fileCallback.onReceiveValue(WebChromeClient.FileChooserParams.parseResult(result, data));
             fileCallback = null;
         }
+        if (code == REQ_SAVE) {
+            writeSaved(result == RESULT_OK && data != null ? data.getData() : null);
+        }
+    }
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+        // страница запоминает время ухода, чтобы при возврате спросить код входа
+        if (web != null) callback("pause", "true");
     }
 
     @Override

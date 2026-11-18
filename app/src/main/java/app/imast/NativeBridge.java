@@ -161,6 +161,12 @@ public class NativeBridge {
         });
     }
 
+    /** Резервная копия файлом: системное окно «Сохранить как». Итог в ImastNativeCallback('saved', true|false). */
+    @JavascriptInterface
+    public void saveFile(final String name, final String text) {
+        a.runOnUiThread(() -> a.saveFile(name, text));
+    }
+
     @JavascriptInterface
     public void vibrate(int ms) {
         Vibrator v = (Vibrator) a.getSystemService(Context.VIBRATOR_SERVICE);
