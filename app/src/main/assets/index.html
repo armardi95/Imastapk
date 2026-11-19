@@ -32,6 +32,8 @@ header.top{display:flex;align-items:center;justify-content:space-between;gap:12p
 .brand{font-family:var(--display);font-weight:700;font-size:30px;letter-spacing:.5px;color:var(--gold-ink);line-height:1}
 .brand{flex:none;display:flex;align-items:center;gap:10px}.brand svg{flex:none;width:38px;height:34px;fill:var(--gold)}textarea{resize:vertical;min-height:76px;line-height:1.4}.brand small{display:block;white-space:nowrap;font-family:var(--body);font-weight:500;font-size:12px;letter-spacing:2px;text-transform:uppercase;color:var(--muted);margin-top:4px}
 .chips{display:flex;align-items:center;gap:8px}
+@media (max-width:380px){.chips{gap:5px}.brand{font-size:26px;gap:7px}.brand svg{width:32px;height:29px}.brand small{font-size:10px;letter-spacing:1.2px}.chips .chip{padding-left:8px;padding-right:8px}}
+@media (max-width:340px){.brand small{letter-spacing:.5px;font-size:9px}.brand{font-size:22px}.brand svg{width:28px;height:25px}.chips{gap:4px}.chips .chip{padding-left:6px;padding-right:6px}.icon-btn{min-width:40px}}
 .chip{white-space:nowrap;font-size:12px;font-weight:600;letter-spacing:.5px;padding:4px 10px;border-radius:99px;border:1px solid var(--line);color:var(--muted);background:transparent}
 .chip.gold{color:var(--gold-ink);border-color:var(--gold)}
 button{font:inherit;color:inherit;cursor:pointer}
@@ -82,6 +84,9 @@ p{margin:0}
 .habit{display:flex;flex-direction:column;gap:10px}
 .habit-head{display:flex;justify-content:space-between;gap:12px;align-items:flex-start}
 .habit-name{font-weight:600;font-size:18px}
+.dots{border:0;background:transparent;color:var(--muted);font-size:24px;line-height:1;padding:4px 10px;margin:-6px -8px 0 0;border-radius:10px;min-width:44px;min-height:44px}
+.dots:active{background:var(--surface2)}
+.hs-sec{border-top:1px solid var(--line);padding-top:14px;display:flex;flex-direction:column;gap:10px}
 .days{display:flex;gap:4px;flex-wrap:wrap}
 .day{font-size:12px;font-weight:600;padding:3px 8px;border-radius:8px;border:1px solid var(--line);color:var(--muted)}
 .day.on{color:var(--gold-ink);border-color:var(--gold)}
@@ -262,7 +267,7 @@ function widgetSync(){if(!NATIVE||!NATIVE.setWidgetData)return;try{
 function openSess(s){if(s!=='m'&&s!=='e')return;wiz={sess:s,i:0,ans:[]};closeModal();go('diary');}
 function nPerm(name,fn){if(!NATIVE){fn(true);return;}if(NATIVE.hasPermission(name)){fn(true);return;}nCbs['permission:'+name]=fn;NATIVE.requestPermission(name);}
 function hm(t){var p=(t||'08:00').split(':');return [+p[0]||0,+p[1]||0];}
-function habitOn(h){if(!NATIVE)return;var t=hm(h.time);NATIVE.setReminder(h.id,'Imast · '+h.name,'Время для привычки',t[0],t[1],h.days.join(','));}
+function habitOn(h){if(!NATIVE||!h.time)return;var t=hm(h.time);NATIVE.setReminder(h.id,'Imast · '+h.name,'Время для привычки',t[0],t[1],h.days.join(','));}
 function habitOff(id){if(NATIVE)NATIVE.cancelReminder(id);}
 function journalSync(){if(!NATIVE)return;if(S.jr){var a=hm(wmT()),b=hm(weT());NATIVE.setReminder('journal-m','Imast · утро','Три вопроса на день ждут вас',a[0],a[1],'');NATIVE.setReminder('journal-e','Imast · вечер','Подведите итоги дня',b[0],b[1],'');}else{NATIVE.cancelReminder('journal-m');NATIVE.cancelReminder('journal-e');}}
 /* ---------- вход: код из 4 цифр и отпечаток ---------- */
@@ -637,16 +642,14 @@ function habitsBody(){
   var list=S.habits.map(function(h){
     var sched=h.days.indexOf(wd(parse(d)))>=0&&d>=h.start, did=!!h.checks[d];
     var cnt=Object.keys(h.checks).length;
-    return '<div class="card habit"><div class="habit-head"><div><div class="habit-name">'+esc(h.name)+'</div><div class="muted small">в '+esc(h.time)+' · с '+esc(h.start.split('-').reverse().join('.'))+' · отметок: '+cnt+'</div></div>'+
-      '<button class="btn ghost small" data-act="delhabit" data-id="'+h.id+'" aria-label="Удалить привычку">Удалить</button></div>'+dayChips(h)+
-      '<div class="switch"><span>'+(NATIVE?'Напоминание':'Будильник и событие в календаре')+'</span><button class="chipbtn" data-act="notify" data-id="'+h.id+'" aria-pressed="'+(!!h.notify)+'">'+(h.notify?'Включено':'Выключено')+'</button></div>'+
-      (NATIVE?'<div class="row"><button class="btn ghost small" data-act="hcal" data-id="'+h.id+'">В календарь</button><button class="btn ghost small" data-act="halarm" data-id="'+h.id+'">Будильник</button></div>':'')+
+    return '<div class="card habit"><div class="habit-head"><div><div class="habit-name">'+esc(h.name)+'</div><div class="muted small">'+(h.time?'в '+esc(h.time)+' · ':'')+'с '+esc(h.start.split('-').reverse().join('.'))+' · отметок: '+cnt+'</div></div>'+
+      '<button class="dots" data-act="hmenu" data-id="'+h.id+'" aria-label="Настройки привычки">⋯</button></div>'+dayChips(h)+
       '<button class="btn '+(did?'':'primary')+'" data-act="check" data-id="'+h.id+'"'+((!sched&&!did)?' disabled':'')+'>'+(did?'Отмечено сегодня ✓':(sched?'Отметить сегодня':'Сегодня не по расписанию'))+'</button></div>';
   }).join('');
   var form=viewHabits.form?
    '<form class="card form" id="hform"><h3>Новая привычка</h3>'+
    '<label for="hn">Название<input type="text" id="hn" maxlength="40" required placeholder="Например, зарядка"></label>'+
-   '<label for="ht">Время<input type="time" id="ht" value="07:30" required></label>'+
+   '<label for="ht">Время, по желанию<input type="time" id="ht" value=""></label>'+
    '<div><div class="muted small" style="margin-bottom:6px">Дни недели</div><div class="row">'+WD.map(function(n,i){return '<button type="button" class="chipbtn" data-act="wday" data-v="'+(i+1)+'" aria-pressed="'+(viewHabits.days.indexOf(i+1)>=0)+'">'+n+'</button>';}).join('')+'</div></div>'+
    '<label for="hd">Дата начала<input type="date" id="hd" value="'+d+'" required></label>'+
    '<div class="row"><button class="btn primary" type="submit">Добавить</button><button class="btn ghost" type="button" data-act="hcancel">Отмена</button></div></form>':
@@ -654,6 +657,31 @@ function habitsBody(){
   return tree+(list||'<div class="card"><p class="muted">Привычек пока нет. Добавьте первую: название, время, дни недели и дата начала.</p></div>')+form;
 }
 viewHabits.days=[1,2,3,4,5];viewHabits.form=false;viewHabits.tab='h';
+
+/* ---------- настройки привычки (⋯) ---------- */
+function hsHabit(){var id=modal.hs&&modal.hs.id;return S.habits.filter(function(x){return x.id===id;})[0]||null;}
+function hsSheet(){var h=hsHabit(),hs=modal.hs;if(!h)return '<div class="sheet"><p>Привычка не найдена.</p><button class="btn primary" data-act="close">Закрыть</button></div>';
+  var noT=!h.time;
+  return '<div class="sheet" role="dialog" aria-modal="true" aria-label="Настройки привычки"><h2>Настройки привычки</h2>'+
+   '<div class="form" style="display:flex;flex-direction:column;gap:12px">'+
+   '<label for="hs_n">Название<input type="text" id="hs_n" maxlength="40" value="'+esc(hs.name)+'"></label>'+
+   '<div><div class="muted small" style="margin-bottom:6px">Дни недели</div><div class="row">'+WD.map(function(n,i){return '<button type="button" class="chipbtn" data-act="hsday" data-v="'+(i+1)+'" aria-pressed="'+(hs.days.indexOf(i+1)>=0)+'">'+n+'</button>';}).join('')+'</div></div>'+
+   '<label for="hs_t">Время, по желанию<input type="time" id="hs_t" value="'+esc(hs.time)+'"></label>'+
+   (hs.time?'<button type="button" class="btn ghost small" data-act="hsnotime">Убрать время</button>':'')+
+   '<button class="btn primary" data-act="hssave">Сохранить изменения</button></div>'+
+   '<div class="hs-sec"><h3 style="margin:0">Будильник и календарь</h3>'+
+   (noT?'<p class="muted small">Сначала укажите время и сохраните: без него напоминать не о чем.</p>':'')+
+   '<div class="switch"><span>'+(NATIVE?'Напоминание'+(h.time?' в '+esc(h.time):''):'Напоминание (имитация в демо)')+'</span><button class="chipbtn" data-act="notify" data-id="'+h.id+'" aria-pressed="'+(!!h.notify)+'"'+(noT&&!h.notify?' disabled':'')+'>'+(h.notify?'Включено':'Выключено')+'</button></div>'+
+   (NATIVE?'<button class="btn" data-act="hcal" data-id="'+h.id+'"'+(noT?' disabled':'')+'>Добавить в календарь</button><button class="btn" data-act="halarm" data-id="'+h.id+'"'+(noT?' disabled':'')+'>Будильник в «Часах»</button><p class="muted small">Календарь и «Часы» откроются для подтверждения. Убрать событие или будильник потом можно только там.</p>':'')+
+   '</div><div class="hs-sec"><button class="btn ghost" data-act="hsdel">'+(hs.delAsk?'Точно удалить привычку?':'Удалить привычку')+'</button>'+
+   '<button class="btn" data-act="close">Закрыть</button></div></div>';}
+function hsOpen(id){var h=S.habits.filter(function(x){return x.id===id;})[0];if(!h)return;modal.hs={id:id,name:h.name,time:h.time||'',days:h.days.slice(),delAsk:false};modal('hset');}
+function hsRead(){var hs=modal.hs;if(!hs||!$('#hs_n'))return;hs.name=$('#hs_n').value;hs.time=$('#hs_t').value||'';}
+function hsSave(quiet){var h=hsHabit(),hs=modal.hs;if(!h)return false;hsRead();var n=hs.name.trim();
+  if(!n){toast('Введите название');return false;}if(!hs.days.length){toast('Выберите хотя бы один день недели');return false;}
+  h.name=n;h.days=hs.days.slice().sort();h.time=hs.time;
+  if(h.notify){if(h.time)habitOn(h);else{h.notify=false;habitOff(h.id);}}
+  save();render();modal('hset');if(!quiet)toast('Сохранено');return true;}
 
 /* ---------- задачи: доска и список ---------- */
 var CW={c:[156,66],b:[140,66],s:[150,78]},GAP=18,PAD=44;
@@ -854,6 +882,8 @@ function modal(kind){
   }else if(kind==='forgot'){
     h='<div class="sheet" role="dialog" aria-modal="true" aria-label="Забыли код"><h2>Забыли код?</h2><p>Восстановить код нельзя, иначе защита теряла бы смысл.</p><p class="small">Можно сбросить приложение: все записи, привычки и задачи на телефоне сотрутся. После сброса верните данные из файла резервной копии в настройках.</p>'+
      '<button class="btn" data-act="reset">'+(modal.reset?'Точно стереть всё?':'Сбросить приложение')+'</button><button class="btn primary" data-act="forgotback">Вернуться к вводу кода</button></div>';
+  }else if(kind==='hset'){
+    h=hsSheet();
   }else if(kind==='tedit'){
     h=edSheet();
   }else if(kind==='step'){
@@ -972,8 +1002,13 @@ document.addEventListener('click',function(e){
   else if(a==='hcancel'){viewHabits.form=false;render();}
   else if(a==='wday'){var k=+t.dataset.v,ix=viewHabits.days.indexOf(k);if(ix>=0)viewHabits.days.splice(ix,1);else viewHabits.days.push(k);t.setAttribute('aria-pressed',ix<0);}
   else if(a==='check'){var h=S.habits.filter(function(x){return x.id===t.dataset.id;})[0];if(h){if(h.checks[d])delete h.checks[d];else h.checks[d]=true;save();render();}}
+  else if(a==='hmenu'){hsOpen(t.dataset.id);}
+  else if(a==='hsday'){hsRead();var k2=+t.dataset.v,hs=modal.hs,i2=hs.days.indexOf(k2);if(i2>=0)hs.days.splice(i2,1);else hs.days.push(k2);t.setAttribute('aria-pressed',i2<0);}
+  else if(a==='hsnotime'){hsRead();modal.hs.time='';modal('hset');}
+  else if(a==='hssave'){hsSave();}
+  else if(a==='hsdel'){hsRead();if(!modal.hs.delAsk){modal.hs.delAsk=true;modal('hset');return;}habitOff(modal.hs.id);S.habits=S.habits.filter(function(x){return x.id!==modal.hs.id;});modal.hs=null;save();closeModal();render();toast('Привычка удалена');}
   else if(a==='delhabit'){habitOff(t.dataset.id);S.habits=S.habits.filter(function(x){return x.id!==t.dataset.id;});save();render();}
-  else if(a==='hcal'||a==='halarm'){var hx=S.habits.filter(function(x){return x.id===t.dataset.id;})[0];if(hx&&NATIVE){var tt=hm(hx.time);goingOut();
+  else if(a==='hcal'||a==='halarm'){var hx=S.habits.filter(function(x){return x.id===t.dataset.id;})[0];if(hx&&NATIVE&&hx.time){var tt=hm(hx.time);goingOut();
     if(a==='hcal')NATIVE.addCalendarEvent('Imast · '+hx.name,'Привычка из Imast',hx.start,tt[0],tt[1],30,hx.days.join(','));
     else NATIVE.setAlarmClock(tt[0],tt[1],'Imast · '+hx.name,hx.days.join(','));}}
   else if(a==='jr'){if(S.jr){S.jr=false;journalSync();save();modal('settings');}else{nPerm('notifications',function(ok){if(ok){S.jr=true;journalSync();save();toast('Напоминания о дневнике включены');}else toast('Уведомления запрещены в настройках Android');modal('settings');});}}
@@ -984,13 +1019,15 @@ document.addEventListener('click',function(e){
     if(!ok)toast('Зажмите пустое место на главном экране → Виджеты → Imast');}
   else if(a==='unlock'){unlock();}
   else if(a==='notify'){var h2=S.habits.filter(function(x){return x.id===t.dataset.id;})[0];if(!h2)return;
-    if(h2.notify){h2.notify=false;habitOff(h2.id);save();render();}
-    else if(NATIVE&&NATIVE.hasPermission('notifications')){h2.notify=true;habitOn(h2);save();render();toast('Напоминание в '+h2.time);}
-    else if(!NATIVE&&S.perm==='granted'){h2.notify=true;save();render();toast('Напоминание включено (имитация)');}
+    var reM=function(){if(modal.hs&&$('#modal').firstChild)modal('hset');};
+    if(h2.notify){h2.notify=false;habitOff(h2.id);save();render();reM();}
+    else if(!h2.time){toast('Сначала укажите время');}
+    else if(NATIVE&&NATIVE.hasPermission('notifications')){h2.notify=true;habitOn(h2);save();render();reM();toast('Напоминание в '+h2.time);}
+    else if(!NATIVE&&S.perm==='granted'){h2.notify=true;save();render();reM();toast('Напоминание включено (имитация)');}
     else{modal.pending=h2.id;modal('perm');}}
   else if(a==='permyes'){var hh=S.habits.filter(function(x){return x.id===modal.pending;})[0];closeModal();
-    nPerm('notifications',function(ok){if(!ok){toast('Уведомления запрещены в настройках Android');return;}S.perm='granted';if(hh){hh.notify=true;habitOn(hh);}save();render();toast(NATIVE?'Напоминание в '+(hh?hh.time:''):'Напоминание включено (имитация)');});}
-  else if(a==='permno'){closeModal();}
+    nPerm('notifications',function(ok){if(!ok){toast('Уведомления запрещены в настройках Android');return;}S.perm='granted';if(hh){hh.notify=true;habitOn(hh);}save();render();if(modal.hs&&hh&&modal.hs.id===hh.id)modal('hset');toast(NATIVE?'Напоминание в '+(hh?hh.time:''):'Напоминание включено (имитация)');});}
+  else if(a==='permno'){if(modal.hs&&modal.hs.id===modal.pending)modal('hset');else closeModal();}
   else if(a==='sample'){seed();closeModal();widgetSync();render();toast('Загружен пример данных');}
   else if(a==='fresh'){S.welcome=false;save();closeModal();render();}
   else if(a==='tm'){S.timeMode=t.dataset.v;save();modal('settings');render();}
@@ -1028,7 +1065,7 @@ document.addEventListener('submit',function(e){
   if(e.target.id==='hform'){e.preventDefault();
     var n=$('#hn').value.trim();if(!n)return;
     if(!viewHabits.days.length){toast('Выберите хотя бы один день недели');return;}
-    S.habits.push({id:'h'+Date.now(),name:n,time:$('#ht').value||'08:00',days:viewHabits.days.slice().sort(),start:$('#hd').value||today(),notify:false,checks:{}});
+    S.habits.push({id:'h'+Date.now(),name:n,time:$('#ht').value||'',days:viewHabits.days.slice().sort(),start:$('#hd').value||today(),notify:false,checks:{}});
     viewHabits.form=false;save();render();toast('Привычка добавлена');}
 });
 window.addEventListener('hashchange',render);
