@@ -847,7 +847,7 @@ function closeModal(){$('#modal').innerHTML='';}
 function modal(kind){
   var h='';
   if(kind==='welcome'){
-    h='<div class="sheet" role="dialog" aria-modal="true" aria-label="Добро пожаловать"><h2>Imast</h2><p class="caption">Imast не будет думать за вас и не лекарство от болезней. Это карта троп, оставленных великими мыслителями.</p><p class="muted small">Демо первых двух месяцев работы: дневник стоика, мозаика и привычки.</p>'+
+    h='<div class="sheet" role="dialog" aria-modal="true" aria-label="Добро пожаловать"><h2>Imast</h2><p class="caption">'+esc(splashPhrase())+'</p><p class="muted small">Демо первых двух месяцев работы: дневник стоика, мозаика и привычки.</p>'+
      '<ul class="plain"><li>Данные хранятся только в этом браузере, ничего не отправляется.</li><li>Комментарии наставника заготовлены заранее.</li>'+(NATIVE?'<li>Напоминания, будильник и календарь работают по-настоящему.</li>':'<li>Будильники в демо имитируются.</li>')+'</ul>'+
      '<button class="btn primary" data-act="sample">Посмотреть с примером за 3 недели</button><button class="btn" data-act="fresh">Начать с нуля</button></div>';
   }else if(kind==='settings'){
@@ -1077,7 +1077,8 @@ document.addEventListener('change',function(e){if(!e.target||e.target.id!=='impo
   fr.readAsText(e.target.files[0]);});
 /* заставка при запуске: знак, затем фраза; нажатие пропускает */
 var SPLASH_PHRASES=['Imast не будет думать за вас.','Imast — не лекарство от болезней.','Imast — карта троп, оставленных великими мыслителями.'];
-function splashPhrase(){var i=0;try{i=(parseInt(localStorage.getItem('imast-splash'),10)||0)%SPLASH_PHRASES.length;localStorage.setItem('imast-splash',String((i+1)%SPLASH_PHRASES.length));}catch(e){}return SPLASH_PHRASES[i];}
+var curPhrase=null;
+function splashPhrase(){if(curPhrase)return curPhrase;var i=0;try{i=(parseInt(localStorage.getItem('imast-splash'),10)||0)%SPLASH_PHRASES.length;localStorage.setItem('imast-splash',String((i+1)%SPLASH_PHRASES.length));}catch(e){}return curPhrase=SPLASH_PHRASES[i];}
 function runSplash(next){var sp=$('#splash');if(!sp){next();return;}sp.hidden=false;var fin=false,tm;var spp=$('#spPhrase');if(spp)spp.textContent=splashPhrase();
   function end(){if(fin)return;fin=true;clearTimeout(tm);sp.classList.add('hide');setTimeout(function(){sp.hidden=true;next();},450);}
   setTimeout(function(){sp.classList.add('show-phrase');},900);tm=setTimeout(end,3600);
