@@ -65,7 +65,7 @@ p{margin:0}
 .step{font-size:14px;font-weight:600;color:var(--gold-ink)}
 .q-title{font-family:var(--display);font-size:28px;font-weight:600;line-height:1.2}
 .field{position:relative}
-.field input[type=text],.field textarea,.form input[type=text],.form input[type=time],.form input[type=date],.form textarea{width:100%;background:var(--bg);color:var(--fg);border:1px solid var(--line);border-radius:12px;padding:14px;font:inherit;font-size:17px}
+.field input[type=text],.field textarea,.form input[type=text],#pastet,.form input[type=time],.form input[type=date],.form textarea{width:100%;background:var(--bg);color:var(--fg);border:1px solid var(--line);border-radius:12px;padding:14px;font:inherit;font-size:17px}
 .counter{position:absolute;right:12px;bottom:-22px;font-size:12px;color:var(--muted);font-variant-numeric:tabular-nums}
 .answers{display:flex;flex-direction:column;gap:8px}
 .ans{display:flex;gap:10px;font-size:15px}
@@ -1139,7 +1139,7 @@ function modal(kind){
   if(kind==='welcome'){
     h='<div class="sheet" role="dialog" aria-modal="true" aria-label="Добро пожаловать"><h2>Imast</h2><p class="caption">'+esc(splashPhrase())+'</p><p class="muted small">Демо: вопросы дня, дневник, задачник, привычки, тренировки и график прогресса. Все разделы — в меню ☰ слева вверху.</p>'+
      '<ul class="plain"><li>Данные хранятся только в этом браузере, ничего не отправляется.</li><li>Комментарии наставника заготовлены заранее.</li>'+(NATIVE?'<li>Напоминания, будильник и календарь работают по-настоящему.</li>':'<li>Будильники в демо имитируются.</li>')+'</ul>'+
-     '<button class="btn primary" data-act="sample">Посмотреть с примером за 3 недели</button><button class="btn" data-act="fresh">Начать с нуля</button></div>';
+     '<button class="btn primary" data-act="sample">Посмотреть с примером за 3 недели</button><button class="btn" data-act="fresh">Начать с нуля</button><button class="btn" data-act="pasteopen">Восстановить из копии</button></div>';
   }else if(kind==='settings'){
     h='<div class="sheet" role="dialog" aria-modal="true" aria-label="Настройки"><h2>Настройки</h2>'+
      '<p class="small muted">Всё хранится только на этом телефоне. Аккаунтов и серверов нет.</p>'+
@@ -1159,7 +1159,8 @@ function modal(kind){
        '<div class="switch"><span>Вход по отпечатку</span><button class="chipbtn" data-act="bio" aria-pressed="'+(!!S.bio)+'">'+(S.bio?'Включено':'Выключено')+'</button></div>'+
        '<button class="btn" data-act="perms">Настройки разрешений Android</button>':'')+
      '<button class="btn" data-act="export">Сохранить резервную копию</button>'+
-     '<label class="btn" for="importf" style="text-align:center">Восстановить из копии<input type="file" id="importf" accept=".txt,.json,text/plain,application/json" hidden></label>'+
+     '<label class="btn" for="importf" style="text-align:center">Восстановить из файла копии<input type="file" id="importf" accept=".txt,.json,text/plain,application/json" hidden></label>'+
+     '<button class="btn" data-act="pasteopen">Вставить копию текстом</button>'+
      '<button class="btn" data-act="sample">Загрузить пример за 3 недели</button>'+
      '<button class="btn" data-act="erase">'+(modal.erase?'Точно стереть всё?':'Стереть все данные')+'</button>'+
      '<button class="btn primary" data-act="close">Закрыть</button></div>';
@@ -1172,6 +1173,14 @@ function modal(kind){
   }else if(kind==='forgot'){
     h='<div class="sheet" role="dialog" aria-modal="true" aria-label="Забыли код"><h2>Забыли код?</h2><p>Восстановить код нельзя, иначе защита теряла бы смысл.</p><p class="small">Можно сбросить приложение: все записи, привычки и задачи на телефоне сотрутся. После сброса верните данные из файла резервной копии в настройках.</p>'+
      '<button class="btn" data-act="reset">'+(modal.reset?'Точно стереть всё?':'Сбросить приложение')+'</button><button class="btn primary" data-act="forgotback">Вернуться к вводу кода</button></div>';
+  }else if(kind==='paste'){
+    h='<div class="sheet" role="dialog" aria-modal="true" aria-label="Восстановить из копии"><h2>Восстановить из копии</h2>'+
+     '<p class="small">Нажмите на поле и удерживайте палец, затем выберите «Вставить». Нужен весь скопированный текст копии.</p>'+
+     '<div class="form"><textarea id="pastet" rows="6" spellcheck="false" autocomplete="off" placeholder="Сюда вставьте копию"></textarea></div>'+
+     (navigator.clipboard&&navigator.clipboard.readText?'<button class="btn" data-act="pasteclip">Вставить из буфера</button>':'')+
+     '<label class="btn" for="importf" style="text-align:center">Или выбрать файл копии<input type="file" id="importf" accept=".txt,.json,text/plain,application/json" hidden></label>'+
+     '<p class="muted small">Данные на этом телефоне заменятся данными из копии.</p>'+
+     '<button class="btn primary" data-act="pastego">Восстановить</button><button class="btn ghost" data-act="pasteback">Отмена</button></div>';
   }else if(kind==='ideo'){
     h=ideoSheet();
   }else if(kind==='hset'){
@@ -1328,6 +1337,10 @@ document.addEventListener('click',function(e){
   else if(a==='fresh'){S.welcome=false;save();closeModal();render();}
   else if(a==='tm'){S.timeMode=t.dataset.v;save();modal('settings');render();}
   else if(a==='erase'){if(!modal.erase){modal.erase=true;modal('settings');}else{S.habits.forEach(function(x){habitOff(x.id);});S=blank();S.welcome=false;S.sample=false;journalSync();modal.erase=false;save();widgetSync();wiz={sess:'m',i:0,ans:[]};closeModal();render();toast('Данные стёрты');}}
+  else if(a==='pasteopen'){modal.pasteFrom=S.welcome?'welcome':'settings';modal('paste');var ta=$('#pastet');if(ta)ta.focus();}
+  else if(a==='pasteclip'){navigator.clipboard.readText().then(function(v){var ta=$('#pastet');if(ta)ta.value=v||'';if(!v)toast('Буфер пуст');}).catch(function(){toast('Нет доступа к буферу: нажмите на поле и выберите «Вставить»');});}
+  else if(a==='pastego'){var ta2=$('#pastet');if(!ta2||!ta2.value.trim()){toast('Сначала вставьте текст копии');return;}restoreText(ta2.value);}
+  else if(a==='pasteback'){modal(modal.pasteFrom==='welcome'?'welcome':'settings');}
   else if(a==='menu'){openMenu();}
   else if(a==='mclose'){closeMenu();}
   else if(a==='msettings'){closeMenu();modal.erase=false;modal('settings');}
@@ -1388,9 +1401,12 @@ document.addEventListener('submit',function(e){
 window.addEventListener('hashchange',function(){closeMenu();render();});
 document.addEventListener('change',function(e){var t=e.target;if(t&&(t.id==='wmT'||t.id==='weT')&&t.value){
   if(t.id==='wmT')S.wm=t.value;else S.we=t.value;save();widgetSync();journalSync();toast('Время сохранено');modal('settings');return;}});
+/* восстановление из копии: файл или вставленный текст */
+function restoreText(txt){try{txt=String(txt||'');var a=txt.indexOf('{'),b=txt.lastIndexOf('}');if(a<0||b<=a)throw 0;
+    var d=JSON.parse(txt.slice(a,b+1));if(!d||typeof d.days!=='object')throw 0;S.habits.forEach(function(x){habitOff(x.id);});S=Object.assign(blank(),d);migrate();S.welcome=false;viewDiary.ed=null;viewTasks.cur=null;save();
+    S.habits.forEach(function(x){if(x.notify)habitOn(x);});journalSync();widgetSync();closeModal();render();toast('Данные восстановлены');return true;}catch(err){toast('Это не похоже на копию Imast: вставьте текст целиком');return false;}}
 document.addEventListener('change',function(e){if(!e.target||e.target.id!=='importf'||!e.target.files[0])return;var fr=new FileReader();
-  fr.onload=function(){try{var d=JSON.parse(fr.result);if(!d||typeof d.days!=='object')throw 0;S.habits.forEach(function(x){habitOff(x.id);});S=Object.assign(blank(),d);migrate();S.welcome=false;viewDiary.ed=null;viewTasks.cur=null;save();
-    S.habits.forEach(function(x){if(x.notify)habitOn(x);});journalSync();widgetSync();closeModal();render();toast('Данные восстановлены');}catch(err){toast('Это не похоже на копию Imast');}};
+  fr.onload=function(){restoreText(fr.result);};
   fr.readAsText(e.target.files[0]);});
 /* заставка при запуске: знак, затем фраза; нажатие пропускает */
 var SPLASH_PHRASES=['Imast не будет думать за вас.','Imast — не лекарство от болезней.','Imast — карта троп, оставленных великими мыслителями.'];
