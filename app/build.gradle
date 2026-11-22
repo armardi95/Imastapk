@@ -14,7 +14,21 @@ android {
         versionName '1.7'
     }
 
+    // Постоянный ключ тестовых сборок: новый APK ставится поверх старого и данные сохраняются.
+    // Для Google Play будет отдельный секретный ключ, он в репозиторий не попадёт.
+    signingConfigs {
+        debug {
+            storeFile file('imast-debug.jks')
+            storePassword 'android'
+            keyAlias 'imast'
+            keyPassword 'android'
+        }
+    }
+
     buildTypes {
+        debug {
+            signingConfig signingConfigs.debug
+        }
         release {
             minifyEnabled false
         }
