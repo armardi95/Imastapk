@@ -21,7 +21,11 @@
     <!-- Вход по отпечатку или лицу -->
     <uses-permission android:name="android.permission.USE_BIOMETRIC" />
 
+    <!-- Шаги за день по датчику телефона -->
+    <uses-permission android:name="android.permission.ACTIVITY_RECOGNITION" />
+
     <uses-feature android:name="android.hardware.fingerprint" android:required="false" />
+    <uses-feature android:name="android.hardware.sensor.stepcounter" android:required="false" />
 
     <!-- Чтобы на Android 11+ находились приложения календаря и часов -->
     <queries>

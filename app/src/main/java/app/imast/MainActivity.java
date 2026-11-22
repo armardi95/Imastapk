@@ -36,10 +36,12 @@ public class MainActivity extends Activity {
     private ValueCallback<Uri[]> fileCallback;
     private String launchSess = "";
     private String pendingSave;
+    Steps steps;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        steps = new Steps(this);
         web = new WebView(this);
         setContentView(web);
 
@@ -215,6 +217,7 @@ public class MainActivity extends Activity {
         if (code != REQ_PERMS || pendingPermission == null) return;
         boolean ok = results.length > 0;
         for (int r : results) ok &= r == PackageManager.PERMISSION_GRANTED;
+        if (ok && "activity".equals(pendingPermission) && steps != null) steps.start();
         callback("permission:" + pendingPermission, ok ? "true" : "false");
         pendingPermission = null;
     }
@@ -236,6 +239,7 @@ public class MainActivity extends Activity {
         super.onPause();
         // страница запоминает время ухода, чтобы при возврате спросить код входа
         if (web != null) callback("pause", "true");
+        if (steps != null) steps.stop();
     }
 
     @Override
@@ -243,6 +247,13 @@ public class MainActivity extends Activity {
         super.onResume();
         // после возврата из системных настроек страница может перепроверить разрешения
         if (web != null) callback("resume", "true");
+        if (steps != null && stepsAllowed()) steps.start();
+    }
+
+    /** Шаги: на Android 10+ нужно разрешение «Физическая активность» */
+    boolean stepsAllowed() {
+        return Build.VERSION.SDK_INT < 29
+                || checkSelfPermission(android.Manifest.permission.ACTIVITY_RECOGNITION) == PackageManager.PERMISSION_GRANTED;
     }
 
     @Override

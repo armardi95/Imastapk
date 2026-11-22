@@ -30,7 +30,7 @@ public class NativeBridge {
 
     // ---------- разрешения ----------
 
-    /** name: notifications | calendar | exactAlarm | biometric */
+    /** name: notifications | calendar | exactAlarm | biometric | activity */
     @JavascriptInterface
     public boolean hasPermission(String name) {
         switch (name) {
@@ -43,6 +43,8 @@ public class NativeBridge {
                 return ((AlarmManager) a.getSystemService(Context.ALARM_SERVICE)).canScheduleExactAlarms();
             case "biometric":
                 return a.biometricAvailable();
+            case "activity":
+                return a.stepsAllowed();
             default:
                 return false;
         }
@@ -69,6 +71,14 @@ public class NativeBridge {
                                 Uri.parse("package:" + a.getPackageName()));
                         a.startActivity(i);
                     } else {
+                        a.callback("permission:" + name, "true");
+                    }
+                    break;
+                case "activity":
+                    if (Build.VERSION.SDK_INT >= 29 && !a.stepsAllowed()) {
+                        a.askPermissions(name, new String[]{Manifest.permission.ACTIVITY_RECOGNITION});
+                    } else {
+                        a.steps.start();
                         a.callback("permission:" + name, "true");
                     }
                     break;
@@ -213,6 +223,20 @@ public class NativeBridge {
         if (m == null || !m.isRequestPinAppWidgetSupported()) return false;
         return m.requestPinAppWidget(new android.content.ComponentName(a, QuoteWidget.class), null, null);
     }
+
+    // ---------- шаги (датчик телефона, данные только на телефоне) ----------
+
+    @JavascriptInterface public boolean stepsAvailable() { return a.steps != null && a.steps.available(); }
+
+    /** Шаги за сегодня; заодно включает датчик, если разрешение уже есть */
+    @JavascriptInterface
+    public long steps() {
+        if (a.steps == null) return 0;
+        if (a.stepsAllowed()) a.runOnUiThread(() -> a.steps.start());
+        return a.steps.today();
+    }
+
+    @JavascriptInterface public String stepsHistory(int days) { return a.steps == null ? "{}" : a.steps.history(Math.max(1, Math.min(days, 400))); }
 
     // ---------- вспомогательное ----------
 
