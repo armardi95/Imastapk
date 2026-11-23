@@ -165,9 +165,10 @@ public class MainActivity extends Activity {
             callback("auth", "'unavailable'");
             return;
         }
+        boolean en = QuoteWidget.en(QuoteWidget.prefs(this));
         BiometricPrompt p = new BiometricPrompt.Builder(this)
-                .setTitle(title == null || title.isEmpty() ? "Вход в Imast" : title)
-                .setNegativeButton("Отмена", getMainExecutor(), (d, w) -> callback("auth", "false"))
+                .setTitle(title == null || title.isEmpty() ? (en ? "Sign in to Imast" : "Вход в Imast") : title)
+                .setNegativeButton(en ? "Cancel" : "Отмена", getMainExecutor(), (d, w) -> callback("auth", "false"))
                 .build();
         p.authenticate(new CancellationSignal(), getMainExecutor(), new BiometricPrompt.AuthenticationCallback() {
             @Override public void onAuthenticationSucceeded(BiometricPrompt.AuthenticationResult r) { callback("auth", "true"); }

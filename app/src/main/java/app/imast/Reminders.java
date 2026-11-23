@@ -23,11 +23,11 @@ public final class Reminders {
     static void ensureChannel(Context c) {
         if (Build.VERSION.SDK_INT >= 26) {
             NotificationManager nm = c.getSystemService(NotificationManager.class);
-            if (nm.getNotificationChannel(CHANNEL) == null) {
-                NotificationChannel ch = new NotificationChannel(CHANNEL, "Напоминания", NotificationManager.IMPORTANCE_HIGH);
-                ch.setDescription("Дневник и привычки");
-                nm.createNotificationChannel(ch);
-            }
+            // повторный вызов с тем же id только обновляет название канала на нужном языке
+            boolean en = QuoteWidget.en(QuoteWidget.prefs(c));
+            NotificationChannel ch = new NotificationChannel(CHANNEL, en ? "Reminders" : "Напоминания", NotificationManager.IMPORTANCE_HIGH);
+            ch.setDescription(en ? "Journal and habits" : "Дневник и привычки");
+            nm.createNotificationChannel(ch);
         }
     }
 

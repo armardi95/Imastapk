@@ -191,6 +191,13 @@ public class NativeBridge {
     @JavascriptInterface
     public void setWidgetData(String quotesJson, String qm, String qe) { QuoteWidget.setData(a, quotesJson, qm, qe); }
 
+    /** Язык приложения ("ru" | "en"): виджет, уведомления и системные окна говорят на нём же */
+    @JavascriptInterface
+    public void setLang(String lang) {
+        QuoteWidget.setLang(a, lang);
+        Reminders.ensureChannel(a);
+    }
+
     /** Начало утреннего и вечернего окна вопросов (каждое длится час) */
     @JavascriptInterface
     public void setWidgetTimes(int mh, int mm, int eh, int em) { QuoteWidget.setTimes(a, mh * 60 + mm, eh * 60 + em); }

@@ -135,16 +135,18 @@ public class QuoteWidget extends AppWidgetProvider {
         int wm = p.getInt("wm", 8 * 60), we = p.getInt("we", 20 * 60 + 30);
         boolean doneM = day.equals(p.getString("doneM", "")), doneE = day.equals(p.getString("doneE", ""));
         String sess = session(p);
+        v.setTextViewText(R.id.next, tr(p, "Далее", "Next"));
+        v.setTextViewText(R.id.answer, tr(p, "Ответить", "Answer"));
 
         Intent open = new Intent(c, MainActivity.class).setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TOP);
         PendingIntent openPi = PendingIntent.getActivity(c, 100, open, flags());
 
         if (sess != null) {
             // режим вопроса
-            String q = p.getString(sess.equals("m") ? "qm" : "qe", sess.equals("m") ? "Что сегодня главное?" : "Что получилось?");
-            v.setTextViewText(R.id.label, (sess.equals("m") ? "УТРО" : "ВЕЧЕР") + " · ВОПРОС 1 ИЗ 3");
+            String q = p.getString(sess.equals("m") ? "qm" : "qe", sess.equals("m") ? tr(p, "Что сегодня главное?", "What matters most today?") : tr(p, "Что получилось?", "What went well?"));
+            v.setTextViewText(R.id.label, sess.equals("m") ? tr(p, "УТРО · ВОПРОС 1 ИЗ 3", "MORNING · QUESTION 1 OF 3") : tr(p, "ВЕЧЕР · ВОПРОС 1 ИЗ 3", "EVENING · QUESTION 1 OF 3"));
             v.setTextViewText(R.id.text, q);
-            v.setTextViewText(R.id.author, "до " + hhmm(sess.equals("m") ? wm + WINDOW_MIN : we + WINDOW_MIN));
+            v.setTextViewText(R.id.author, tr(p, "до ", "until ") + hhmm(sess.equals("m") ? wm + WINDOW_MIN : we + WINDOW_MIN));
             v.setViewVisibility(R.id.like, View.GONE);
             v.setViewVisibility(R.id.dislike, View.GONE);
             v.setViewVisibility(R.id.next, View.GONE);
@@ -162,14 +164,14 @@ public class QuoteWidget extends AppWidgetProvider {
 
         // режим цитаты
         int n = count(p);
-        String label = "ЦИТАТА";
-        if (doneE) label = "ВЕЧЕР ЗАПИСАН ✓";
-        else if (doneM) label = "УТРО ЗАПИСАНО ✓";
+        String label = tr(p, "ЦИТАТА", "QUOTE");
+        if (doneE) label = tr(p, "ВЕЧЕР ЗАПИСАН ✓", "EVENING SAVED ✓");
+        else if (doneM) label = tr(p, "УТРО ЗАПИСАНО ✓", "MORNING SAVED ✓");
         v.setTextViewText(R.id.label, label);
         v.setViewVisibility(R.id.answer, View.GONE);
 
         if (n == 0) {
-            v.setTextViewText(R.id.text, "Откройте Imast, чтобы загрузить цитаты.");
+            v.setTextViewText(R.id.text, tr(p, "Откройте Imast, чтобы загрузить цитаты.", "Open Imast to load quotes."));
             v.setTextViewText(R.id.author, "Imast");
             v.setViewVisibility(R.id.like, View.GONE);
             v.setViewVisibility(R.id.dislike, View.GONE);
@@ -190,17 +192,17 @@ public class QuoteWidget extends AppWidgetProvider {
             String simple = q.optString("n", "");
             boolean on = p.getBoolean("simple", false) && !simple.isEmpty();
             // весь текст виджета меняется: цитата ↔ объяснение простыми словами
-            v.setTextViewText(R.id.text, on ? simple : "«" + q.optString("t") + "»");
-            if (on) v.setTextViewText(R.id.label, "ПРОСТЫМИ СЛОВАМИ");
+            v.setTextViewText(R.id.text, on ? simple : (en(p) ? "\u201C" + q.optString("t") + "\u201D" : "«" + q.optString("t") + "»"));
+            if (on) v.setTextViewText(R.id.label, tr(p, "ПРОСТЫМИ СЛОВАМИ", "IN PLAIN WORDS"));
             if (!simple.isEmpty()) {
                 v.setViewVisibility(R.id.simpleBtn, View.VISIBLE);
-                v.setTextViewText(R.id.simpleTxt, on ? "назад к цитате" : "простыми словами");
+                v.setTextViewText(R.id.simpleTxt, on ? tr(p, "назад к цитате", "back to the quote") : tr(p, "простыми словами", "in plain words"));
                 v.setTextViewText(R.id.simpleQ, on ? "↩" : "?");
                 v.setTextColor(R.id.simpleQ, on ? DARK : GOLD);
                 v.setInt(R.id.simpleQ, "setBackgroundResource", on ? R.drawable.widget_q_on : R.drawable.widget_q);
             }
         } catch (Exception e) {
-            v.setTextViewText(R.id.text, "Откройте Imast, чтобы загрузить цитаты.");
+            v.setTextViewText(R.id.text, tr(p, "Откройте Imast, чтобы загрузить цитаты.", "Open Imast to load quotes."));
         }
         int vote = votes(p).optInt(String.valueOf(idx), 0);
         v.setViewVisibility(R.id.like, View.VISIBLE);
@@ -331,6 +333,18 @@ public class QuoteWidget extends AppWidgetProvider {
     private static PendingIntent tickIntent(Context c) {
         Intent i = new Intent(c, QuoteWidget.class).setAction(A_TICK);
         return PendingIntent.getBroadcast(c, 9, i, flags());
+    }
+
+    /** Язык интерфейса виджета: "ru" или "en" (его присылает приложение) */
+    static boolean en(SharedPreferences p) { return "en".equals(p.getString("lang", "ru")); }
+    private static String tr(SharedPreferences p, String ru, String en) { return en(p) ? en : ru; }
+
+    static void setLang(Context c, String lang) {
+        if (!"ru".equals(lang) && !"en".equals(lang)) return;
+        SharedPreferences p = prefs(c);
+        if (lang.equals(p.getString("lang", ""))) return;
+        p.edit().putString("lang", lang).apply();
+        updateAll(c);
     }
 
     static SharedPreferences prefs(Context c) {
