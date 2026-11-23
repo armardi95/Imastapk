@@ -195,6 +195,9 @@ ul.plain{margin:0;padding-left:20px;display:flex;flex-direction:column;gap:6px;f
 button.blk[disabled]{opacity:.5;cursor:not-allowed}
 button.card{font:inherit;color:inherit;background:var(--surface)}
 .fmtname{font-size:12px;font-weight:600;letter-spacing:1px;text-transform:uppercase;color:var(--gold-ink)}
+.brand small.pill{display:inline-flex;align-items:center;gap:4px;width:max-content;margin-top:5px;padding:3px 7px 3px 9px;border-radius:99px;background:var(--gold);color:var(--on-gold);font-weight:700;letter-spacing:1.5px}
+.brand small.pill .caret{width:9px;height:6px;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
+.brand-btn:active small.pill{filter:brightness(.92)}
 /* левое меню */
 .menu-btn{flex:none}
 .brand-btn{border:0;background:transparent;padding:4px 6px 4px 0;margin:0;color:inherit;text-align:left;cursor:pointer;border-radius:10px;min-width:0}
@@ -273,7 +276,7 @@ button.card{font:inherit;color:inherit;background:var(--surface)}
 <div class="app">
   <header class="top">
     <div class="lefthead"><button class="icon-btn menu-btn" data-act="menu" aria-label="Открыть меню"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true"><path d="M4 7h16M4 12h16M4 17h16"/></svg></button>
-    <button class="brand-btn" data-act="ideo" aria-label="Imast, учение: стоицизм. Выбрать учение"><span class="brand"><svg viewBox="195 205 675 605" aria-hidden="true"><rect x="205" y="215" width="190" height="36" rx="3"/><path d="M216 251H384L360 286H240Z"/><rect x="250" y="286" width="100" height="440"/><rect x="226" y="726" width="148" height="39" rx="12"/><rect x="205" y="765" width="190" height="35" rx="2"/><path d="M250 470A170 170 0 0 1 590 470H490A70 70 0 0 0 350 470Z"/><path d="M490 470A170 170 0 0 1 830 470H730A70 70 0 0 0 590 470Z"/><rect x="474" y="470" width="132" height="26" rx="3"/><rect x="490" y="496" width="100" height="240"/><rect x="470" y="732" width="140" height="35" rx="12"/><rect x="460" y="767" width="160" height="33" rx="2"/><rect x="714" y="470" width="132" height="26" rx="3"/><rect x="730" y="496" width="100" height="240"/><rect x="710" y="732" width="140" height="35" rx="12"/><rect x="700" y="767" width="160" height="33" rx="2"/></svg><span style="display:block">Imast<small>stoic</small></span></span></button></div>
+    <button class="brand-btn" data-act="ideo" aria-label="Imast, учение: стоицизм. Выбрать учение"><span class="brand"><svg viewBox="195 205 675 605" aria-hidden="true"><rect x="205" y="215" width="190" height="36" rx="3"/><path d="M216 251H384L360 286H240Z"/><rect x="250" y="286" width="100" height="440"/><rect x="226" y="726" width="148" height="39" rx="12"/><rect x="205" y="765" width="190" height="35" rx="2"/><path d="M250 470A170 170 0 0 1 590 470H490A70 70 0 0 0 350 470Z"/><path d="M490 470A170 170 0 0 1 830 470H730A70 70 0 0 0 590 470Z"/><rect x="474" y="470" width="132" height="26" rx="3"/><rect x="490" y="496" width="100" height="240"/><rect x="470" y="732" width="140" height="35" rx="12"/><rect x="460" y="767" width="160" height="33" rx="2"/><rect x="714" y="470" width="132" height="26" rx="3"/><rect x="730" y="496" width="100" height="240"/><rect x="710" y="732" width="140" height="35" rx="12"/><rect x="700" y="767" width="160" height="33" rx="2"/></svg><span style="display:block">Imast<small class="pill">stoic <svg class="caret" viewBox="0 0 10 6" aria-hidden="true"><path d="M1 1l4 4 4-4"/></svg></small></span></span></button></div>
     <div class="chips">
       <span class="chip gold" id="chipPhase"></span>
       <span class="chip" id="chipSample" hidden>Пример</span>
