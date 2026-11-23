@@ -10,8 +10,8 @@ android {
         applicationId 'app.imast.demo'
         minSdk 24
         targetSdk 34
-        versionCode 8
-        versionName '1.7'
+        versionCode 9
+        versionName '1.8'
     }
 
     // Постоянный ключ тестовых сборок: новый APK ставится поверх старого и данные сохраняются.

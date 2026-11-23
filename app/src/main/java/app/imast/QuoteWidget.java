@@ -31,7 +31,11 @@ public class QuoteWidget extends AppWidgetProvider {
     private static final String A_DISLIKE = "app.imast.W_DISLIKE";
     private static final String A_TICK = "app.imast.W_TICK";
     private static final String A_SIMPLE = "app.imast.W_SIMPLE";
+    private static final String A_ROTATE = "app.imast.W_ROTATE";
     private static final int WINDOW_MIN = 60;
+    /** Цитаты сами сменяются раз в 5 минут (без пробуждения телефона) */
+    private static final long ROTATE_MS = 5 * 60 * 1000L;
+    private static final int DARK = 0xFF0E1526;
 
     private static final int GOLD = 0xFFD4AE5A;
     private static final int DIM = 0x66EDE6D6;
@@ -50,6 +54,7 @@ public class QuoteWidget extends AppWidgetProvider {
     public void onDisabled(Context c) {
         AlarmManager am = (AlarmManager) c.getSystemService(Context.ALARM_SERVICE);
         am.cancel(tickIntent(c));
+        am.cancel(rotateIntent(c));
     }
 
     @Override
@@ -82,6 +87,16 @@ public class QuoteWidget extends AppWidgetProvider {
             case A_TICK:
                 updateAll(c);
                 break;
+            case A_ROTATE: {
+                // по кругу к следующей цитате; во время вопросов дня ничего не меняем
+                int n = count(p);
+                if (session(p) == null && n > 1) {
+                    int next = (Math.min(p.getInt("qIdx", 0), n - 1) + 1) % n;
+                    p.edit().putInt("qIdx", next).putString("qDate", today()).putBoolean("simple", false).apply();
+                }
+                updateAll(c);
+                break;
+            }
             default:
                 break;
         }
@@ -96,22 +111,30 @@ public class QuoteWidget extends AppWidgetProvider {
         RemoteViews v = build(c);
         for (int id : ids) m.updateAppWidget(id, v);
         scheduleNext(c);
+        scheduleRotate(c);
+    }
+
+    /** Какие вопросы дня сейчас показывать: "m", "e" или null */
+    private static String session(SharedPreferences p) {
+        String day = today();
+        int now = nowMin();
+        int wm = p.getInt("wm", 8 * 60), we = p.getInt("we", 20 * 60 + 30);
+        boolean doneM = day.equals(p.getString("doneM", "")), doneE = day.equals(p.getString("doneE", ""));
+        if (inWindow(now, wm) && !doneM) return "m";
+        if (inWindow(now, we) && !doneE) return "e";
+        return null;
     }
 
     private static RemoteViews build(Context c) {
         SharedPreferences p = prefs(c);
         RemoteViews v = new RemoteViews(c.getPackageName(), R.layout.widget_quote);
-        v.setViewVisibility(R.id.simpleLabel, View.GONE);
-        v.setViewVisibility(R.id.simpleText, View.GONE);
-        v.setInt(R.id.text, "setMaxLines", 6);
+        v.setViewVisibility(R.id.simpleBtn, View.GONE);
+        // до Android 8 автоподбора размера нет: ограничиваем строки, чтобы текст не обрезался посередине
+        if (Build.VERSION.SDK_INT < 26) v.setInt(R.id.text, "setMaxLines", 6);
         String day = today();
-        int now = nowMin();
         int wm = p.getInt("wm", 8 * 60), we = p.getInt("we", 20 * 60 + 30);
         boolean doneM = day.equals(p.getString("doneM", "")), doneE = day.equals(p.getString("doneE", ""));
-
-        String sess = null;
-        if (inWindow(now, wm) && !doneM) sess = "m";
-        else if (inWindow(now, we) && !doneE) sess = "e";
+        String sess = session(p);
 
         Intent open = new Intent(c, MainActivity.class).setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TOP);
         PendingIntent openPi = PendingIntent.getActivity(c, 100, open, flags());
@@ -139,7 +162,7 @@ public class QuoteWidget extends AppWidgetProvider {
 
         // режим цитаты
         int n = count(p);
-        String label = "ЦИТАТА ДНЯ";
+        String label = "ЦИТАТА";
         if (doneE) label = "ВЕЧЕР ЗАПИСАН ✓";
         else if (doneM) label = "УТРО ЗАПИСАНО ✓";
         v.setTextViewText(R.id.label, label);
@@ -163,14 +186,18 @@ public class QuoteWidget extends AppWidgetProvider {
         int idx = Math.min(p.getInt("qIdx", 0), n - 1);
         try {
             JSONObject q = new JSONArray(p.getString("quotes", "[]")).getJSONObject(idx);
-            v.setTextViewText(R.id.text, "«" + q.optString("t") + "»");
             v.setTextViewText(R.id.author, q.optString("a"));
             String simple = q.optString("n", "");
-            if (p.getBoolean("simple", false) && !simple.isEmpty()) {
-                v.setInt(R.id.text, "setMaxLines", 2);
-                v.setTextViewText(R.id.simpleText, simple);
-                v.setViewVisibility(R.id.simpleLabel, View.VISIBLE);
-                v.setViewVisibility(R.id.simpleText, View.VISIBLE);
+            boolean on = p.getBoolean("simple", false) && !simple.isEmpty();
+            // весь текст виджета меняется: цитата ↔ объяснение простыми словами
+            v.setTextViewText(R.id.text, on ? simple : "«" + q.optString("t") + "»");
+            if (on) v.setTextViewText(R.id.label, "ПРОСТЫМИ СЛОВАМИ");
+            if (!simple.isEmpty()) {
+                v.setViewVisibility(R.id.simpleBtn, View.VISIBLE);
+                v.setTextViewText(R.id.simpleTxt, on ? "назад к цитате" : "простыми словами");
+                v.setTextViewText(R.id.simpleQ, on ? "↩" : "?");
+                v.setTextColor(R.id.simpleQ, on ? DARK : GOLD);
+                v.setInt(R.id.simpleQ, "setBackgroundResource", on ? R.drawable.widget_q_on : R.drawable.widget_q);
             }
         } catch (Exception e) {
             v.setTextViewText(R.id.text, "Откройте Imast, чтобы загрузить цитаты.");
@@ -185,8 +212,7 @@ public class QuoteWidget extends AppWidgetProvider {
         v.setTextColor(R.id.dislike, vote == 1 ? DIM : GOLD);
 
         v.setOnClickPendingIntent(R.id.text, self(c, A_SIMPLE, 1));
-        v.setOnClickPendingIntent(R.id.simpleText, self(c, A_SIMPLE, 5));
-        v.setOnClickPendingIntent(R.id.simpleLabel, self(c, A_SIMPLE, 6));
+        v.setOnClickPendingIntent(R.id.simpleBtn, self(c, A_SIMPLE, 5));
         v.setOnClickPendingIntent(R.id.next, self(c, A_NEXT, 4));
         v.setOnClickPendingIntent(R.id.like, self(c, A_LIKE, 2));
         v.setOnClickPendingIntent(R.id.dislike, self(c, A_DISLIKE, 3));
@@ -288,6 +314,18 @@ public class QuoteWidget extends AppWidgetProvider {
     private static PendingIntent self(Context c, String action, int code) {
         Intent i = new Intent(c, QuoteWidget.class).setAction(action);
         return PendingIntent.getBroadcast(c, code, i, flags());
+    }
+
+    /** Следующая смена цитаты через 5 минут. Будильник неточный и не будит телефон: при выключенном экране сработает, когда экран включится. */
+    static void scheduleRotate(Context c) {
+        AlarmManager am = (AlarmManager) c.getSystemService(Context.ALARM_SERVICE);
+        if (am == null) return;
+        am.set(AlarmManager.RTC, System.currentTimeMillis() + ROTATE_MS, rotateIntent(c));
+    }
+
+    private static PendingIntent rotateIntent(Context c) {
+        Intent i = new Intent(c, QuoteWidget.class).setAction(A_ROTATE);
+        return PendingIntent.getBroadcast(c, 10, i, flags());
     }
 
     private static PendingIntent tickIntent(Context c) {

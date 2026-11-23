@@ -1,4 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
+<!--
+  Виджет Imast. Текст цитаты сам подбирает размер (Android 8+):
+  поле текста занимает 80% свободной высоты (по 10% сверху и снизу — отступы),
+  и шрифт растёт или уменьшается так, чтобы цитата заполнила это поле.
+-->
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:id="@+id/root"
     android:layout_width="match_parent"
@@ -12,49 +17,81 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:letterSpacing="0.12"
-        android:text="ЦИТАТА ДНЯ"
+        android:text="ЦИТАТА"
         android:textColor="#C9A24A"
         android:textSize="11sp" />
 
-    <TextView
-        android:id="@+id/text"
+    <LinearLayout
+        android:id="@+id/area"
         android:layout_width="match_parent"
         android:layout_height="0dp"
-        android:layout_marginTop="6dp"
         android:layout_weight="1"
-        android:ellipsize="end"
-        android:fontFamily="serif"
-        android:maxLines="6"
-        android:text="Откройте Imast, чтобы загрузить цитаты."
-        android:textColor="#EDE6D6"
-        android:textSize="15sp" />
+        android:orientation="vertical">
 
-    <TextView
-        android:id="@+id/simpleLabel"
+        <FrameLayout
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_weight="1" />
+
+        <TextView
+            android:id="@+id/text"
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_weight="8"
+            android:autoSizeMaxTextSize="44sp"
+            android:autoSizeMinTextSize="10sp"
+            android:autoSizeStepGranularity="1sp"
+            android:autoSizeTextType="uniform"
+            android:ellipsize="end"
+            android:fontFamily="serif"
+            android:gravity="center_vertical"
+            android:text="Откройте Imast, чтобы загрузить цитаты."
+            android:textColor="#EDE6D6"
+            android:textSize="15sp" />
+
+        <FrameLayout
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_weight="1" />
+    </LinearLayout>
+
+    <LinearLayout
+        android:id="@+id/simpleBtn"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginTop="4dp"
-        android:letterSpacing="0.12"
-        android:text="ПРОСТЫМИ СЛОВАМИ"
-        android:textColor="#C9A24A"
-        android:textSize="11sp"
-        android:visibility="gone" />
+        android:gravity="center_vertical"
+        android:orientation="horizontal"
+        android:paddingTop="4dp"
+        android:paddingBottom="2dp"
+        android:paddingEnd="8dp">
 
-    <TextView
-        android:id="@+id/simpleText"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="2dp"
-        android:ellipsize="end"
-        android:maxLines="4"
-        android:textColor="#C9C2B4"
-        android:textSize="13sp"
-        android:visibility="gone" />
+        <TextView
+            android:id="@+id/simpleTxt"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:letterSpacing="0.06"
+            android:text="простыми словами"
+            android:textColor="#C9A24A"
+            android:textSize="12sp" />
+
+        <TextView
+            android:id="@+id/simpleQ"
+            android:layout_width="18dp"
+            android:layout_height="18dp"
+            android:layout_marginStart="6dp"
+            android:background="@drawable/widget_q"
+            android:gravity="center"
+            android:includeFontPadding="false"
+            android:text="\?"
+            android:textColor="#C9A24A"
+            android:textSize="11sp"
+            android:textStyle="bold" />
+    </LinearLayout>
 
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginTop="6dp"
+        android:layout_marginTop="2dp"
         android:gravity="center_vertical"
         android:orientation="horizontal">
 
