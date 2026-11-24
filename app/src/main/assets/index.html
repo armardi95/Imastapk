@@ -275,6 +275,17 @@ button.card{font:inherit;color:inherit;background:var(--surface)}
 .tl-b:focus-visible{outline:2px solid var(--gold);outline-offset:3px}
 .tl-b .tl-e{font-size:12px;color:var(--gold-ink);margin-left:6px}
 .head-row{display:flex;align-items:center;justify-content:space-between;gap:10px}
+.hl-thread{display:flex;flex-direction:column;gap:10px}
+.hl-u{align-self:flex-end;max-width:85%;background:var(--gold);color:var(--on-gold);border-radius:16px 16px 4px 16px;padding:10px 14px;font-size:15px;line-height:1.4;overflow-wrap:anywhere}
+.hl-a{align-self:flex-start;max-width:94%;background:var(--surface);border:1px solid var(--line);border-radius:16px 16px 16px 4px;padding:12px 14px;display:flex;flex-direction:column;gap:8px;font-size:15px;line-height:1.45}
+.hl-a .who{font-size:12px;font-weight:600;letter-spacing:.5px;text-transform:uppercase;color:var(--gold-ink)}
+.hl-a p{margin:0}
+.hl-a .btn{align-self:flex-start;min-height:42px;padding:8px 14px;font-size:14px}
+.hl-chips{display:flex;flex-wrap:wrap;gap:8px}
+.hl-chips .chipbtn{text-align:left;font-weight:500}
+.hl-form{display:flex;gap:8px;align-items:stretch}
+.hl-form input{flex:1;min-width:0;background:var(--surface);color:var(--fg);border:1px solid var(--line);border-radius:12px;padding:12px 14px;font:inherit;font-size:16px;min-height:48px}
+.hl-form input:focus-visible{outline:2px solid var(--gold);outline-offset:2px}
 .ab-today{display:grid;grid-template-columns:1fr 1fr;gap:8px}
 .ab-done{font-weight:600;color:var(--ok);margin:0}
 .ab-save{font-size:15px;line-height:1.45;margin:0}
@@ -958,6 +969,7 @@ var MI={
  tools:'<rect x="3" y="8" width="18" height="12" rx="2"/><path d="M9 8V5.5A1.5 1.5 0 0 1 10.5 4h3A1.5 1.5 0 0 1 15 5.5V8M3 13h18M10 13v2h4v-2"/>',
  dumb:'<path d="M6.5 7v10M17.5 7v10M3.5 9.5v5M20.5 9.5v5M6.5 12h11"/>',
  candle:'<path d="M7 3v4M7 14v7M17 3v8M17 17v4"/><rect x="5" y="7" width="4" height="7" rx="1"/><rect x="15" y="11" width="4" height="6" rx="1"/>',
+ help:'<path d="M5 4h14a1 1 0 0 1 1 1v10a1 1 0 0 1-1 1h-8l-5 4v-4H5a1 1 0 0 1-1-1V5a1 1 0 0 1 1-1z"/><path d="M9.8 8.4a2.2 2.2 0 1 1 3 2.1c-.5.2-.8.6-.8 1.1v.4"/><path d="M12 14v.01"/>',
  portrait:'<rect x="4" y="3" width="16" height="18" rx="2"/><circle cx="12" cy="10" r="3"/><path d="M7.5 18c.8-2.4 2.4-3.6 4.5-3.6s3.7 1.2 4.5 3.6"/>',
  people:'<circle cx="9" cy="8.5" r="3"/><path d="M3.5 20c.8-3.4 2.8-5 5.5-5s4.7 1.6 5.5 5"/><circle cx="17" cy="9.5" r="2.4"/><path d="M15.8 15.2c2.4-.1 4.1 1.3 4.7 4"/>',
  flame:'<path d="M12 21a6 6 0 0 0 6-6c0-4.5-3.5-6.5-4.5-11-2.5 2-3.5 4.5-3.5 7-1-.5-1.8-1.6-2-3C6.5 9.6 6 11.7 6 15a6 6 0 0 0 6 6z"/>',
@@ -966,11 +978,11 @@ var MI={
  close:'<path d="M6 6l12 12M18 6L6 18"/>'
 };
 function svgI(k){return '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">'+MI[k]+'</svg>';}
-var ROUTES=['quotes','mentor','diary','habits','train','progress','portrait','community','fire'];
+var ROUTES=['quotes','mentor','diary','habits','train','progress','portrait','community','fire','help'];
 var ALIAS={stats:'cal',mosaic:'mosaic'};
-var MENU=[['quotes',T_('Прошивка'),'brain'],['mentor',T_('Наставник'),'mentor'],['diary',T_('Перо'),'quill'],['habits',T_('Инструменты'),'tools'],['train',T_('Тренировки'),'dumb'],['progress',T_('Прогресс'),'candle'],['portrait',T_('Автопортрет'),'portrait'],'-',['community',T_('Сообщество'),'people'],['fire',T_('Огоньки'),'flame'],['settings',T_('Настройки'),'gear']];
-function menuSub(k){return {quotes:T_('Стоицизм: уроки и цитаты'),mentor:T_('Марк Аврелий'),diary:T_('Дневник и вопросы дня'),habits:T_('Привычки, задачи, дни без'),train:T_('Программы и шаги'),progress:T_('График, мозаика, календарь'),portrait:T_('Таймлайн и рост'),community:T_('Статьи и лекции'),fire:T_('Баланс: ')+fireOf().bal+T_(' (демо)'),settings:T_('Код, копия, виджет')}[k];}
-function menuBadge(k){return k==='mentor'?T_('<span class="soon gold">скоро</span>'):k==='community'?'<span class="soon">coming soon</span>':'';}
+var MENU=[['quotes',T_('Прошивка'),'brain'],['mentor',T_('Наставник'),'mentor'],['diary',T_('Перо'),'quill'],['habits',T_('Инструменты'),'tools'],['train',T_('Тренировки'),'dumb'],['progress',T_('Прогресс'),'candle'],['portrait',T_('Автопортрет'),'portrait'],'-',['community',T_('Сообщество'),'people'],['fire',T_('Огоньки'),'flame'],['settings',T_('Настройки'),'gear'],['help',T_('Помощь ИИ'),'help']];
+function menuSub(k){return {quotes:T_('Стоицизм: уроки и цитаты'),mentor:T_('Марк Аврелий'),diary:T_('Дневник и вопросы дня'),habits:T_('Привычки, задачи, дни без'),train:T_('Программы и шаги'),progress:T_('График, мозаика, календарь'),portrait:T_('Таймлайн и рост'),community:T_('Статьи и лекции'),fire:T_('Баланс: ')+fireOf().bal+T_(' (демо)'),settings:T_('Код, копия, виджет'),help:T_('Как пользоваться Imast')}[k];}
+function menuBadge(k){return k==='mentor'?T_('<span class="soon gold">скоро</span>'):k==='community'?'<span class="soon">'+T_('скоро')+'</span>':'';}
 function route(){var h=(location.hash||'').replace('#','');
   if(ALIAS[h]){viewProgress.tab=ALIAS[h];try{history.replaceState(null,'','#progress');}catch(e){}return 'progress';}
   return ROUTES.indexOf(h)>=0?h:'quotes';}
@@ -1021,6 +1033,87 @@ function viewCommunity(){
    T_('<p>Место, где люди одного учения делятся опытом, а вы видите, что не одни.</p>')+
    T_('<ul class="plain"><li>Статьи читателей с рейтингом по темам, например «Что такое горе и как я его пережил»</li><li>Кнопка «Мне помогло» бесплатно и поддержка авторов огоньками</li><li>Лекции авторов и специалистов</li><li>Обсуждения, где великие умы разных учений спорят друг с другом</li><li>Профиль по желанию: галочка — реальный человек, сова — эксперт</li></ul>')+
    T_('<p class="muted small">Ваш дневник никогда не попадает в сообщество. Профиль и записи не связаны между собой.</p></div>');}
+
+/* ---------- помощь ---------- */
+var HELP=[
+ ['about',T_('Что умеет Imast?'),['что умеет','умее','можешь','функци','возможност','раздел','что есть','обзор','меню','what can','feature','section','overview','menu'],
+  T_('Imast — это CRM для жизни. В меню слева:\nПрошивка — уроки и цитаты учения.\nНаставник — разбор дня и вопросы (бета).\nПеро — вопросы дня и дневник.\nИнструменты — привычки, задачи и «Дни без».\nТренировки — программы и счётчик шагов.\nПрогресс — курс, мозаика и календарь.\nАвтопортрет — таймлайн вашего роста.\nСообщество и Огоньки — статьи авторов и валюта приложения.\nВнизу меню — настройки и эта помощь.'),''],
+ ['learn',T_('Как учиться в «Прошивке»?'),['прошивк','урок','учени','обучен','экзамен','тест','цитат','учебн','learn','lesson','firmware','exam','quiz','quote','teaching'],
+  T_('В «Прошивке» вы проходите учение по программе. Вверху цитата дня, кнопка «простыми словами» объясняет её проще.\nНиже учебные блоки: прочитайте тезис и термины, затем «Проверить себя». Из 5 вопросов нужно ответить верно хотя бы на 4, тогда блок засчитан.\nУчение выбирается плашкой «stoic ▾» под логотипом. Сейчас доступен стоицизм, другие учения в дорожной карте.'),'quotes'],
+ ['mentor',T_('Что умеет наставник?'),['наставник','марк','аврели','эпиктет','ии','нейросет','mentor','marcus','epictetus','ai'],
+  T_('Наставник появится в бета-версии. Марк Аврелий разберёт ваш день и ответит на вопросы, Эпиктет проверит знания по вашим же записям.\nНаставник читает записи только с вашего согласия.\nВ бете вопрос наставнику стоит 1 огонёк, недельный блок обучения с наставником — 25. В демо комментарии наставника заготовлены заранее.'),'mentor'],
+ ['diary',T_('Как вести дневник и вопросы дня?'),['перо','дневник','запис','вопрос дня','утр','вечер','формат','journal','diary','entry','morning','evening','format'],
+  T_('В «Пере» три вопроса утром и три вечером, ответ в пару слов.\nУтро или вечер приложение выбирает само по времени. Выбрать вручную можно в настройках: «Время суток для проверки».\nНиже записи дня: выберите формат, например «суть, анализ, вывод», или пишите свободно. Первая запись за день открывает кубик мозаики.'),'diary'],
+ ['habits',T_('Как добавить привычку?'),['привычк','отметит','дерев','расписан','habit','tree','check','schedule'],
+  T_('Инструменты → Привычки → «Добавить привычку». Укажите название, дни недели, дату начала и, по желанию, время.\nВ дни по расписанию нажимайте «Отметить сегодня»: каждая отметка добавляет дереву 20 см.\nКнопка ⋯ у привычки открывает её настройки: там можно изменить или удалить привычку.'),'habits:h'],
+ ['tasks',T_('Как работает задачник?'),['задач','цел','шаг','доск','план','task','goal','step','board','plan'],
+  T_('Инструменты → Задачи. Поставьте цель, разбейте её на крупные блоки, а блоки на маленькие шаги с датами. Шаги в блоке выполняются по порядку.\nЗадачи можно смотреть доской или списком. Шаги на сегодня видны сверху, а каждый выполненный шаг добавляет дереву 20 см.'),'habits:t'],
+ ['abst',T_('Что такое «Дни без»?'),['дни без','курен','курит','курю','сигарет','алкогол','пить','пью','брос','отказ','срыв','тяг','тянет','воздерж','smok','cigar','alcohol','drink','quit','slip','urge','days without'],
+  T_('Инструменты → Дни без → «Начать отсчёт». Наставник спросит, от чего вы отказываетесь, сколько уходило в день, зачем вам это и с какого дня считать.\nКаждый день отмечайте «Сегодня без…» или «Был срыв». Срыв обнуляет только серию: все дни без и всё сэкономленное остаются.\nКнопка «Тянет» помогает пережить тягу. Прошлый день можно исправить нажатием в календаре.'),'habits:a'],
+ ['train',T_('Как работают тренировки и шаги?'),['трениров','упражнен','программ','спорт','спин','шаги','шагов','шагомер','счетчик','train','workout','exercise','program','steps','pedometer'],
+  T_('В «Тренировках» есть программы: здоровая спина, сила, выносливость. Программа открывается за огоньки, упражнения отмечаются галочками.\nСчётчик шагов работает по датчику телефона в приложении для Android: нажмите «Включить счётчик шагов» и разрешите «Физическую активность».\nТренировки и шаги хранятся только на телефоне.'),'train'],
+ ['progress',T_('Как считается прогресс?'),['прогресс','курс','график','свеч','акци','рекорд','тренд','очк','балл','progress','rate','chart','candle','record','trend','score'],
+  T_('«Прогресс» показывает ваш курс, как график акций. Каждое дело даёт +1: ответы утром и вечером, записи, отметки привычек, шаги задач, уроки, тренировки, дни без.\nЗа привычку или шаг задачи, которые вы запланировали и не отметили, −0,5, но не больше −2 за день.\nНа графике видны тренд и рекорд. Нажмите на свечу, чтобы увидеть, из чего она сложилась. Период: день, неделя или месяц.'),'progress:chart'],
+ ['pause',T_('Как поставить паузу?'),['пауз','отпуск','болезн','болею','заболел','перерыв','pause','vacation','sick','break'],
+  T_('Прогресс → График → «Поставить на паузу». На время болезни или отпуска свечи не рисуются и ничего не теряется, как выходные на бирже.\nЧтобы продолжить, нажмите «Вернуться из паузы».'),'progress:chart'],
+ ['mosaic',T_('Что такое мозаика и календарь?'),['мозаик','портрет','кубик','календар','статистик','активност','откровен','mosaic','portrait','tile','calendar','stat'],
+  T_('Прогресс → Мозаика. Ответы утром и вечером и первая запись за день открывают кубики портрета, всего их 90.\nВкладка «Календарь» показывает, в какие дни вы писали и отмечали привычки, а ниже графики активности, интереса и откровения.'),'progress:mosaic'],
+ ['portrait',T_('Что такое «Мой автопортрет»?'),['автопортрет','таймлайн','хронолог','рост','событ','дат','self-portrait','selfportrait','timeline','milestone','date'],
+  T_('«Автопортрет» собирает историю вашего роста. Отметки Imast появляются сами: первые ответы, серии по 7 и 30 дней, сданные уроки, выполненные задачи, тренировки, дни без.\nНажмите «Добавить дату», чтобы отметить важное событие: переезд, новую работу. Так наставник поймёт, что происходило в жизни, когда менялись ваши записи.\nТекст портрета от наставника появится в бета-версии.'),'portrait'],
+ ['fire',T_('Что такое огоньки?'),['огон','огоньк','валют','деньг','оплат','подписк','цен','купит','spark','currency','pay','price','subscription','cost','buy'],
+  T_('Огоньки — валюта Imast, отсылка к огню Прометея. В бете их можно будет купить: месячный набор $8 за 100 огоньков или разовый $10 за 100.\nОни тратятся на недельный блок обучения с экзаменом (15), блок с наставником (25), отдельный вопрос наставнику (1) и программы тренировок (10–15).\nДневник, привычки, задачи, дни без, мозаика и прогресс бесплатны. Сейчас баланс демонстрационный.'),'fire'],
+ ['community',T_('Что будет в сообществе?'),['сообществ','стать','статей','лекци','автор','специалист','community','article','lecture','author'],
+  T_('«Сообщество» появится позже: статьи и лекции авторов и специалистов. Авторы будут получать за них огоньки.'),'community'],
+ ['backup',T_('Как сохранить резервную копию?'),['копи','резерв','бэкап','сохранит','перенес','новый телефон','восстанов','потер','backup','restore','transfer','export','import','new phone','lose'],
+  T_('Настройки → «Сохранить резервную копию». Приложение покажет текст копии: скопируйте его и сохраните, например, в «Избранном» Telegram.\nЧтобы вернуть данные на новом телефоне или после переустановки, откройте Настройки → «Вставить копию текстом» или «Восстановить из файла копии».\nДелайте копию хотя бы раз в неделю: все данные хранятся только на телефоне.'),'settings'],
+ ['update',T_('Как обновить приложение без потери данных?'),['обнов','апк','apk','верси','установ','update','version','install'],
+  T_('Экраны приложения обновляются через интернет сами, переустанавливать ничего не нужно.\nНовый APK ставьте поверх старого: подпись та же, данные сохранятся. На всякий случай перед установкой сохраните резервную копию.'),'settings'],
+ ['widget',T_('Как добавить виджет?'),['виджет','рабоч стол','главн экран','widget','home screen'],
+  T_('В приложении для Android: Настройки → «Добавить виджет на экран». Или долгое нажатие на рабочем столе → Виджеты → Imast.\nЦитаты сменяются сами каждые 5 минут. «Простыми словами ?» объясняет цитату проще, «Далее» показывает следующую.\nУтром и вечером на час виджет показывает вопросы дня. Время меняется в настройках.'),'settings'],
+ ['lang',T_('Как поменять язык?'),['язык','английск','русск','language','english','russian'],
+  T_('Настройки → «Язык · Language»: русский или английский. Виджет и уведомления переключатся вместе с приложением.'),'settings'],
+ ['pin',T_('Как поставить код или отпечаток?'),['код','парол','пин','отпечат','защит','блокир','вход','pin','password','fingerprint','lock','security'],
+  T_('Настройки → «Вход»: включите код из 4 цифр. В приложении для Android можно включить и вход по отпечатку, тогда код остаётся запасным.\nЗабытый код восстановить нельзя: останется сбросить приложение и вернуть записи из резервной копии.'),'settings'],
+ ['privacy',T_('Где хранятся мои данные?'),['данн','приватн','конфиденц','хран','сервер','облак','кто видит','privacy','data','server','cloud','private','stored'],
+  T_('Все записи хранятся только на этом телефоне: аккаунтов и серверов нет.\nНаставник в бета-версии будет читать записи только с вашего согласия. Облачное хранение есть в дорожной карте, и тоже по желанию.'),''],
+ ['remind',T_('Как включить напоминания?'),['напомин','уведомл','будильн','notification','remind','alarm'],
+  T_('В приложении для Android: Настройки → «Напоминать о дневнике». Напоминания приходят во время утренних и вечерних вопросов виджета, это время меняется там же.\nЕсли уведомления не приходят, нажмите «Настройки разрешений Android».'),'settings'],
+ ['sample',T_('Что за пример данных?'),['пример','демо','тестов','стерет','удалит','сброс','заново','с нуля','sample','demo','reset','erase','delete','start over'],
+  T_('«Загрузить пример за 3 недели» в настройках заполняет приложение примерными данными, чтобы всё посмотреть. Пока он загружен, вверху видна метка «Пример».\nПример заменяет ваши записи, поэтому сначала сохраните резервную копию. Чтобы начать со своими данными, в настройках нажмите «Стереть все данные».'),'settings']];
+var HELP_START=['about','backup','habits','abst','fire','widget'];
+function hlTopic(id){return HELP.filter(function(h){return h[0]===id;})[0];}
+function hlNorm(s){return ' '+String(s||'').toLowerCase().replace(/ё/g,'е').replace(/[^a-zа-я0-9\-]+/g,' ').replace(/\s+/g,' ').trim()+' ';}
+function hlFind(q){var n=hlNorm(q),tok=n.trim().split(' '),sc=[];
+  HELP.forEach(function(h){var s=0;h[2].forEach(function(k){
+    if(k.indexOf(' ')>=0){if(n.indexOf(' '+k)>=0)s+=2+k.length/6;}
+    else if(tok.some(function(t){return t.indexOf(k)===0;}))s+=1+k.length/8;});sc.push([s,h]);});
+  sc.sort(function(a,b){return b[0]-a[0];});
+  var best=sc[0][0]>=1?sc[0][1]:null;
+  return {best:best,alt:sc.filter(function(x){return x[0]>0&&x[1]!==best;}).slice(0,3).map(function(x){return x[1];})};}
+function hlAnswer(q){var n=hlNorm(q);
+  if(/^ (привет|здравств|добрый|hi|hello|hey)/.test(n))return {id:'greet',t:T_('Здравствуйте! Спросите, как пользоваться Imast: например, как добавить привычку или сохранить копию.'),alt:HELP_START.slice(0,3).map(hlTopic)};
+  if(/ (спасиб|благодар|thank)/.test(n))return {id:'thanks',t:T_('Пожалуйста! Если появятся вопросы, я здесь.'),alt:[]};
+  var r=hlFind(q);
+  if(r.best)return {id:r.best[0],t:r.best[3],go:r.best[4],alt:r.alt};
+  return {id:'none',t:T_('Точного ответа я пока не нашёл. Попробуйте спросить по-другому или выберите тему ниже.'),alt:(r.alt.length?r.alt:HELP_START.slice(0,4).map(hlTopic))};}
+function hlGoLabel(g){var r=g.split(':')[0],m=MENU.filter(function(x){return x!=='-'&&x[0]===r;})[0];return m?m[1]:'';}
+function hlAsk(q,pre){var a;if(pre)a=pre;else{q=String(q||'').trim().slice(0,200);if(!q)return;a=hlAnswer(q);}
+  viewHelp.msgs.push({id:a.id||'',u:pre?pre.u:q,a:a.t,go:a.go||'',alt:(a.alt||[]).map(function(h){return h[0];})});
+  if(viewHelp.msgs.length>20)viewHelp.msgs.shift();render();
+  var th=$('.hl-thread');if(th&&th.lastElementChild)th.lastElementChild.scrollIntoView({block:'start'});}
+function viewHelp(){var ms=viewHelp.msgs,last=ms[ms.length-1];
+  var thread=ms.map(function(m){
+    return '<div class="hl-u">'+esc(m.u)+'</div><div class="hl-a" data-t="'+esc(m.id||'')+'"><span class="who">'+T_('Помощь')+'</span>'+
+      m.a.split('\n').map(function(p){return '<p>'+esc(p)+'</p>';}).join('')+
+      (m.go?'<button class="btn" data-act="hgo" data-v="'+esc(m.go)+'">'+T_('Открыть: ')+esc(m.go==='settings'?T_('Настройки'):hlGoLabel(m.go))+'</button>':'')+'</div>';}).join('');
+  var sug=(last?last.alt:HELP_START).map(hlTopic).filter(Boolean);
+  return '<h2>'+T_('Помощь ИИ')+'</h2>'+
+   '<div class="card"><p>'+T_('Спросите, как пользоваться Imast и что в нём есть.')+'</p><p class="muted small">'+T_('Сейчас отвечает встроенный справочник по приложению. В бета-версии на те же вопросы будет отвечать нейросеть.')+'</p></div>'+
+   (thread?'<div class="hl-thread" aria-live="polite">'+thread+'</div>':'')+
+   (sug.length?'<div><div class="muted small" style="margin-bottom:8px">'+(last?T_('Ещё по теме'):T_('Частые вопросы'))+'</div><div class="hl-chips">'+sug.map(function(h){return '<button class="chipbtn" data-act="hask" data-v="'+h[0]+'">'+esc(h[1])+'</button>';}).join('')+'</div></div>':'')+
+   '<form class="hl-form" id="hlform" autocomplete="off"><input type="text" id="hlq" maxlength="200" enterkeyhint="send" aria-label="'+T_('Ваш вопрос')+'" placeholder="'+T_('Задайте вопрос')+'"><button class="btn primary" type="submit">'+T_('Спросить')+'</button></form>'+
+   (ms.length?'<button class="btn ghost" data-act="hclear">'+T_('Очистить разговор')+'</button>':'');}
+viewHelp.msgs=[];
 
 /* ---------- дни без ---------- */
 var AK={smoke:{t:T_('Курение'),nm:T_('курения'),mode:'count',u:[T_('сигарету'),T_('сигареты'),T_('сигарет')],verb:T_('Вы не выкурили '),q:T_('Сколько сигарет в день вы обычно выкуривали?'),pq:T_('Сколько стоит пачка?'),pack:20},
@@ -1367,7 +1460,7 @@ viewProgress.tab='chart';viewProgress.tf='d';viewProgress.pick=null;
 function renderTabs(){renderMenu();}
 function render(){
   var r=route(),v=$('#view');
-  v.innerHTML=({quotes:viewLearn,mentor:viewMentor,diary:viewDiary,habits:viewHabits,train:viewTrain,progress:viewProgress,portrait:viewPortrait,community:viewCommunity,fire:viewFire})[r]();
+  v.innerHTML=({quotes:viewLearn,mentor:viewMentor,diary:viewDiary,habits:viewHabits,train:viewTrain,progress:viewProgress,portrait:viewPortrait,community:viewCommunity,fire:viewFire,help:viewHelp})[r]();
   $('#chipPhase').textContent=phase()==='m'?T_('Утро'):T_('Вечер');
   $('#chipSample').hidden=!S.sample;
   renderTabs();
@@ -1644,6 +1737,10 @@ document.addEventListener('click',function(e){
   else if(a==='abedsave'){abRead();var es=modal.ab,ae=abById(es.id);if(!ae||!abCheck(es,'all'))return;
     if(ae.kind==='other')ae.nm=es.nm;ae.per=abNum(es.per);ae.price=abNum(es.price);ae.cur=es.cur||ae.cur;ae.why=es.why||'';ae.start=es.start;modal.ab=null;save();closeModal();render();toast(T_('Сохранено'));}
   else if(a==='abeddel'){abRead();if(!modal.ab)return;if(!modal.ab.delAsk){modal.ab.delAsk=true;modal('abedit');return;}var dlid=modal.ab.id;S.abst=abOf().filter(function(x){return x.id!==dlid;});modal.ab=null;save();closeModal();render();toast(T_('Отсчёт удалён'));}
+  else if(a==='hask'){var ht=hlTopic(t.dataset.v);if(ht)hlAsk(null,{id:ht[0],u:ht[1],t:ht[3],go:ht[4],alt:hlFind(ht[1]).alt.filter(function(x){return x[0]!==ht[0];})});}
+  else if(a==='hgo'){var hv=(t.dataset.v||'').split(':');if(hv[0]==='settings'){modal.erase=false;modal('settings');return;}
+    if(hv[0]==='habits'&&hv[1])viewHabits.tab=hv[1];if(hv[0]==='progress'&&hv[1])viewProgress.tab=hv[1];go(hv[0]);}
+  else if(a==='hclear'){viewHelp.msgs=[];render();}
   else if(a==='lf'){viewPortrait.f=t.dataset.v;render();}
   else if(a==='lifeadd'){modal.life={};modal('life');}
   else if(a==='lifeedit'){var le=lifeOf().filter(function(x){return x.id===t.dataset.v;})[0];if(!le)return;modal.life=Object.assign({},le);modal('life');}
@@ -1673,6 +1770,7 @@ document.addEventListener('keydown',function(e){
 document.addEventListener('click',function(e){if(e.target.closest&&e.target.closest('label[for="importf"]'))goingOut();},true);
 document.addEventListener('change',function(e){if(e.target&&(e.target.type==='date'||e.target.type==='time')){var ev=new Event('input',{bubbles:true});e.target.dispatchEvent(ev);}});
 document.addEventListener('submit',function(e){
+  if(e.target.id==='hlform'){e.preventDefault();var hq=$('#hlq'),hqv=hq?hq.value:'';if(!hqv.trim())return;hlAsk(hqv);return;}
   if(e.target.id==='eform'){e.preventDefault();var ed=viewDiary.ed;if(!ed)return;
     var F=FORMATS[ed.f]||FORMATS.day,v={},any=false;
     F.f.forEach(function(f){var el=$('#e_'+f[0]),x=el?el.value.trim():'';v[f[0]]=x;if(x)any=true;});
