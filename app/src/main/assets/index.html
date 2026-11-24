@@ -275,6 +275,38 @@ button.card{font:inherit;color:inherit;background:var(--surface)}
 .tl-b:focus-visible{outline:2px solid var(--gold);outline-offset:3px}
 .tl-b .tl-e{font-size:12px;color:var(--gold-ink);margin-left:6px}
 .head-row{display:flex;align-items:center;justify-content:space-between;gap:10px}
+.ab-today{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.ab-done{font-weight:600;color:var(--ok);margin:0}
+.ab-save{font-size:15px;line-height:1.45;margin:0}
+.ab-save b{color:var(--gold-ink);font-weight:600}
+.ab-nav{display:flex;align-items:center;justify-content:space-between;gap:8px}
+.ab-nav b{font-weight:600}
+.ab-nav button{min-width:44px;min-height:44px;border:1px solid var(--line);background:transparent;border-radius:10px;color:var(--fg);font-size:18px}
+.ab-nav button[disabled]{opacity:.35}
+.cal button.d{background:transparent;font:inherit;padding:0;cursor:pointer}
+.cal .d.ok{border-color:var(--ok);color:var(--fg)}
+.cal .d.slip{border-color:var(--warn);color:var(--fg)}
+.cal .d.open{border-style:dashed}
+.cal .d.out{opacity:.35}
+.abm{display:flex;height:8px;align-items:center;justify-content:center}
+.abm i{width:8px;height:8px;border-radius:2px 8px 2px 8px;background:var(--ok)}
+.abm i.slip{border-radius:1px;background:var(--warn);transform:rotate(45deg);width:7px;height:7px}
+.legend i.slip{border-radius:1px;background:var(--warn);transform:rotate(45deg)}
+.ab-ms summary{cursor:pointer;font-weight:600;min-height:44px;display:flex;align-items:center;justify-content:space-between;gap:8px;list-style:none}
+.ab-ms summary::-webkit-details-marker{display:none}
+.ab-ms summary::after{content:'▾';color:var(--muted);flex:none}
+.ab-ms[open] summary::after{content:'▴'}
+.ab-ms ul{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:2px}
+.ab-ms li{padding:6px 0 6px 26px;position:relative;font-size:14px;color:var(--muted);line-height:1.4}
+.ab-ms li::before{content:'○';position:absolute;left:4px;top:6px;color:var(--muted)}
+.ab-ms li.got{color:var(--fg)}
+.ab-ms li.got::before{content:'✓';color:var(--ok)}
+.ab-ms li b{font-weight:600}
+.breath{width:132px;height:132px;margin:6px auto;border-radius:50%;background:radial-gradient(circle,var(--gold) 0%,transparent 70%);opacity:.85;transform:scale(.8)}
+@media (prefers-reduced-motion:no-preference){.breath{animation:breath 10s ease-in-out infinite}@keyframes breath{0%,100%{transform:scale(.55)}40%{transform:scale(1)}}}
+.center{text-align:center}
+.form input[type=number],.form select{width:100%;background:var(--bg);color:var(--fg);border:1px solid var(--line);border-radius:12px;padding:14px;font:inherit;min-height:48px}
+.row.nowrap{flex-wrap:nowrap}.row.nowrap input{flex:1;min-width:0}.row.nowrap select{width:auto;flex:none}
 .loglist div{display:flex;justify-content:space-between;gap:10px;padding:9px 0;border-top:1px solid var(--line);font-size:14px}
 .loglist div:first-child{border-top:0}
 /* огоньки */
@@ -721,9 +753,9 @@ function viewMosaic(){
    T_('<div class="card"><h3>В бете</h3><p class="small">12 портретов за год, золотой венок и медаль «Я превзошёл себя».</p></div>');
 }
 function dayChips(h){return '<div class="days">'+WD.map(function(n,i){return '<span class="day'+(h.days.indexOf(i+1)>=0?' on':'')+'">'+n+'</span>';}).join('')+'</div>';}
-function viewHabits(){
-  var seg=T_('<div class="seg" role="group" aria-label="Раздел"><button data-act="htab" data-v="h" aria-pressed="')+(viewHabits.tab!=='t')+T_('">Привычки</button><button data-act="htab" data-v="t" aria-pressed="')+(viewHabits.tab==='t')+T_('">Задачи')+(allDue().length?' · '+allDue().length:'')+'</button></div>';
-  return '<h2>'+(viewHabits.tab==='t'?T_('Задачи'):T_('Привычки'))+'</h2>'+seg+(viewHabits.tab==='t'?viewTasks():habitsBody());
+function viewHabits(){var tb=viewHabits.tab||'h',due=allDue().length;
+  var seg='<div class="seg s3" style="grid-template-columns:repeat(3,1fr)" role="group" aria-label="'+T_('Раздел')+'">'+[['h',T_('Привычки')],['t',T_('Задачи')+(due?' · '+due:'')],['a',T_('Дни без')]].map(function(x){return '<button data-act="htab" data-v="'+x[0]+'" aria-pressed="'+(tb===x[0])+'">'+x[1]+'</button>';}).join('')+'</div>';
+  return '<h2>'+(tb==='t'?T_('Задачи'):tb==='a'?T_('Дни без'):T_('Привычки'))+'</h2>'+seg+(tb==='t'?viewTasks():tb==='a'?viewAbst():habitsBody());
 }
 function habitsBody(){
   var d=today(),m=totalChecks()*0.2,t=tier(m);
@@ -937,7 +969,7 @@ function svgI(k){return '<svg viewBox="0 0 24 24" fill="none" stroke="currentCol
 var ROUTES=['quotes','mentor','diary','habits','train','progress','portrait','community','fire'];
 var ALIAS={stats:'cal',mosaic:'mosaic'};
 var MENU=[['quotes',T_('Прошивка'),'brain'],['mentor',T_('Наставник'),'mentor'],['diary',T_('Перо'),'quill'],['habits',T_('Инструменты'),'tools'],['train',T_('Тренировки'),'dumb'],['progress',T_('Прогресс'),'candle'],['portrait',T_('Автопортрет'),'portrait'],'-',['community',T_('Сообщество'),'people'],['fire',T_('Огоньки'),'flame'],['settings',T_('Настройки'),'gear']];
-function menuSub(k){return {quotes:T_('Стоицизм: уроки и цитаты'),mentor:T_('Марк Аврелий'),diary:T_('Дневник и вопросы дня'),habits:T_('Задачник и привычки'),train:T_('Программы и шаги'),progress:T_('График, мозаика, календарь'),portrait:T_('Таймлайн и рост'),community:T_('Статьи и лекции'),fire:T_('Баланс: ')+fireOf().bal+T_(' (демо)'),settings:T_('Код, копия, виджет')}[k];}
+function menuSub(k){return {quotes:T_('Стоицизм: уроки и цитаты'),mentor:T_('Марк Аврелий'),diary:T_('Дневник и вопросы дня'),habits:T_('Привычки, задачи, дни без'),train:T_('Программы и шаги'),progress:T_('График, мозаика, календарь'),portrait:T_('Таймлайн и рост'),community:T_('Статьи и лекции'),fire:T_('Баланс: ')+fireOf().bal+T_(' (демо)'),settings:T_('Код, копия, виджет')}[k];}
 function menuBadge(k){return k==='mentor'?T_('<span class="soon gold">скоро</span>'):k==='community'?'<span class="soon">coming soon</span>':'';}
 function route(){var h=(location.hash||'').replace('#','');
   if(ALIAS[h]){viewProgress.tab=ALIAS[h];try{history.replaceState(null,'','#progress');}catch(e){}return 'progress';}
@@ -990,6 +1022,126 @@ function viewCommunity(){
    T_('<ul class="plain"><li>Статьи читателей с рейтингом по темам, например «Что такое горе и как я его пережил»</li><li>Кнопка «Мне помогло» бесплатно и поддержка авторов огоньками</li><li>Лекции авторов и специалистов</li><li>Обсуждения, где великие умы разных учений спорят друг с другом</li><li>Профиль по желанию: галочка — реальный человек, сова — эксперт</li></ul>')+
    T_('<p class="muted small">Ваш дневник никогда не попадает в сообщество. Профиль и записи не связаны между собой.</p></div>');}
 
+/* ---------- дни без ---------- */
+var AK={smoke:{t:T_('Курение'),nm:T_('курения'),mode:'count',u:[T_('сигарету'),T_('сигареты'),T_('сигарет')],verb:T_('Вы не выкурили '),q:T_('Сколько сигарет в день вы обычно выкуривали?'),pq:T_('Сколько стоит пачка?'),pack:20},
+  alcohol:{t:T_('Алкоголь'),nm:T_('алкоголя'),mode:'count',u:[T_('порцию'),T_('порции'),T_('порций')],verb:T_('Вы не выпили '),q:T_('Сколько порций в день в среднем? Порция: бокал вина, бутылка пива или рюмка крепкого.'),pq:T_('Сколько в среднем стоит одна порция?'),pack:1},
+  sweet:{t:T_('Сладкое'),nm:T_('сладкого'),mode:'money',q:T_('Сколько в день обычно уходило на сладкое? Можно оставить пустым.')},
+  social:{t:T_('Соцсети'),nm:T_('соцсетей'),mode:'hours',q:T_('Сколько часов в день уходило на соцсети?')},
+  bets:{t:T_('Ставки'),nm:T_('ставок'),mode:'money',q:T_('Сколько в среднем уходило на ставки в день?')},
+  other:{t:T_('Своё'),nm:'',mode:'money',q:T_('Сколько в день уходило на это? Можно оставить пустым.')}};
+var CURS=['₽','֏','$','€','₸','₴','₾','Br'];
+var WHO=[[1,T_('Через 20 минут'),T_('снижаются пульс и давление')],
+  [1,T_('Через 12 часов'),T_('уровень угарного газа в крови приходит в норму')],
+  [14,T_('Через 2–12 недель'),T_('улучшаются кровообращение и работа лёгких')],
+  [30,T_('Через 1–9 месяцев'),T_('становится меньше кашля и одышки')],
+  [365,T_('Через год'),T_('риск ишемической болезни сердца примерно вдвое ниже, чем у курящего')],
+  [1826,T_('Через 5–15 лет'),T_('риск инсульта снижается до уровня некурящего')],
+  [3652,T_('Через 10 лет'),T_('риск рака лёгких примерно вдвое ниже, чем у курящего; снижается риск рака рта, горла, пищевода, мочевого пузыря, шейки матки и поджелудочной железы')],
+  [5479,T_('Через 15 лет'),T_('риск ишемической болезни сердца такой же, как у некурящего')]];
+function abOf(){if(!Array.isArray(S.abst))S.abst=[];return S.abst;}
+function abById(id){return abOf().filter(function(x){return x.id===id;})[0];}
+function abKind(a){return AK[a.kind]||AK.other;}
+function abName(a){return a.kind==='other'||!AK[a.kind]?(a.nm||''):AK[a.kind].nm;}
+function abOkDays(a){var m=a.marks||{};return Object.keys(m).filter(function(k){return m[k]==='ok';}).sort();}
+function abStreak(a){var m=a.marks||{},td=today(),d=m[td]==='ok'?td:ymd(addDays(parse(td),-1)),n=0;while(m[d]==='ok'){n++;d=ymd(addDays(parse(d),-1));}return n;}
+function abBest(a){var best=0,run=0,prev=null;abOkDays(a).forEach(function(d){run=(prev&&daysBetween(prev,d)===1)?run+1:1;prev=d;if(run>best)best=run;});return best;}
+function abMoney(v,cur){var n=Math.round(v).toLocaleString(LOC);return LANG==='en'&&(cur==='$'||cur==='€')?cur+n:n+' '+(cur||'');}
+function abSave(a,n){var k=abKind(a),per=+a.per||0;if(!n||!per)return '';
+  if(k.mode==='count'){var cnt=Math.round(n*per*10)/10,s=esc(k.verb)+'<b>'+fmt(cnt)+' '+(cnt%1?k.u[1]:plural(cnt,k.u[0],k.u[1],k.u[2]))+'</b>';
+    if(k.pack>1){var pk=Math.round(cnt/k.pack*10)/10;s+=T_(': это ')+'<b>'+fmt(pk)+' '+(LANG==='en'?(pk===1?'pack':'packs'):(pk%1?T_('пачки'):plural(pk,T_('пачка'),T_('пачки'),T_('пачек'))))+'</b>';}
+    if(+a.price){s+=(k.pack>1?T_(' и '):T_(': это '))+'<b>'+abMoney(cnt/k.pack*a.price,a.cur)+'</b>';}
+    return s+'.';}
+  if(k.mode==='hours'){var hrs=Math.round(n*per*10)/10;return T_('Вы вернули себе ')+'<b>'+fmt(hrs)+' '+(LANG==='en'?(hrs===1?'hour':'hours'):(hrs%1?T_('часа'):plural(hrs,T_('час'),T_('часа'),T_('часов'))))+'</b>.';}
+  return T_('Сэкономлено ')+'<b>'+abMoney(n*per,a.cur)+'</b>.';}
+function abHealth(a,st){var nx=null,got=0,li='';
+  WHO.forEach(function(w){var ok=st>=w[0];if(ok)got++;else if(!nx)nx=w;li+='<li class="'+(ok?'got':'')+'"><b>'+w[1]+'</b>: '+w[2]+'</li>';});
+  var left=nx?nx[0]-st:0;
+  return '<details class="ab-ms"><summary>'+T_('Здоровье: ')+got+T_(' из ')+WHO.length+(nx?T_(' · следующее через ')+left+' '+plural(left,T_('день'),T_('дня'),T_('дней')):'')+'</summary><ul>'+li+'</ul>'+
+    '<p class="muted small">'+T_('Общие данные ВОЗ о пользе отказа от курения, а не прогноз лично для вас. Отсчёт идёт от последнего срыва.')+'</p></details>';}
+function abCal(a){var off=viewAbst.mo[a.id]||0,now=new Date(),first=new Date(now.getFullYear(),now.getMonth()+off,1),y=first.getFullYear(),mo=first.getMonth(),len=new Date(y,mo+1,0).getDate(),td=today(),m=a.marks||{};
+  var cells='';WD.forEach(function(n){cells+='<div class="dow">'+n+'</div>';});
+  for(var i=0;i<wd(first)-1;i++)cells+='<div class="d empty"></div>';
+  for(var k=1;k<=len;k++){var ds=y+'-'+pad(mo+1)+'-'+pad(k),st=m[ds];
+    if(ds>td||ds<a.start){cells+='<div class="d out"><span>'+k+'</span></div>';continue;}
+    var lab=fmtDate(ds)+': '+(st==='ok'?T_('без срыва'):st==='slip'?T_('срыв'):T_('не отмечен'));
+    cells+='<button class="d'+(st==='ok'?' ok':st==='slip'?' slip':' open')+(ds===td?' today':'')+'" data-act="abday" data-id="'+a.id+'" data-v="'+ds+'" aria-label="'+esc(lab)+'"><span>'+k+'</span><span class="abm">'+(st==='ok'?'<i></i>':st==='slip'?'<i class="slip"></i>':'')+'</span></button>';}
+  var startMo=a.start.slice(0,7),curMo=y+'-'+pad(mo+1);
+  return '<div class="ab-nav"><button data-act="abmo" data-id="'+a.id+'" data-v="-1" aria-label="'+T_('Предыдущий месяц')+'"'+(curMo<=startMo?' disabled':'')+'>‹</button><b>'+MONTHS[mo].charAt(0).toUpperCase()+MONTHS[mo].slice(1)+' '+y+'</b><button data-act="abmo" data-id="'+a.id+'" data-v="1" aria-label="'+T_('Следующий месяц')+'"'+(off>=0?' disabled':'')+'>›</button></div>'+
+    '<div class="cal">'+cells+'</div><div class="legend"><span><i class="leaf"></i>'+T_('без срыва')+'</span><span><i class="slip"></i>'+T_('срыв')+'</span><span>'+T_('нажмите на день, чтобы изменить')+'</span></div>';}
+function abCard(a){var td=today(),k=abKind(a),nm=esc(abName(a)),st=abStreak(a),okd=abOkDays(a),mk=(a.marks||{})[td],sv=abSave(a,okd.length),t='';
+  if(td<a.start)t='<p class="muted small">'+T_('Отсчёт начнётся ')+esc(fmtDate(a.start))+'</p>';
+  else if(mk==='ok')t='<div class="head-row"><p class="ab-done">✓ '+T_('Сегодня без ')+nm+'</p><button class="btn ghost" data-act="abundo" data-id="'+a.id+'">'+T_('Отменить')+'</button></div>';
+  else if(mk==='slip')t='<p class="small">'+T_('Сегодня был срыв. Серия начнётся заново, а всё сэкономленное останется с вами.')+'</p><button class="btn ghost" data-act="abundo" data-id="'+a.id+'">'+T_('Отменить отметку')+'</button>';
+  else t='<div class="ab-today"><button class="btn primary" data-act="abok" data-id="'+a.id+'">'+T_('Сегодня без ')+nm+'</button><button class="btn" data-act="abslip" data-id="'+a.id+'">'+T_('Был срыв')+'</button></div>';
+  var men=st>=30?T_('Тридцать дней позади. Эпиктет писал, что так привычка сначала слабеет, а потом исчезает совсем. Не подбрасывайте дров в огонь.'):
+    T_('Считайте дни, когда удержались. Продержитесь тридцать подряд, и привычка начнёт слабеть.')+' '+T_('До тридцати дней осталось: ')+(30-st)+'.';
+  var warn=a.kind==='alcohol'?T_('Пили много и каждый день? Резко бросать опасно: сначала поговорите с врачом.'):a.kind==='bets'?T_('Если ставки уже бьют по деньгам или близким, поговорите со специалистом или найдите группу «Анонимные игроки».'):'';
+  return '<div class="card"><div class="habit-head"><div><div class="habit-name">'+T_('Дни без ')+nm+'</div><div class="muted small">'+T_('с ')+esc(fmtDate(a.start))+(a.urges?T_(' · устояли перед тягой: ')+a.urges:'')+'</div></div>'+
+    '<button class="dots" data-act="abmenu" data-id="'+a.id+'" aria-label="'+T_('Настройки отсчёта')+'">⋯</button></div>'+
+    '<div class="totals"><div><b>'+st+'</b><span>'+T_('дней подряд')+'</span></div><div><b>'+okd.length+'</b><span>'+T_('всего дней без')+'</span></div><div><b>'+abBest(a)+'</b><span>'+T_('рекорд')+'</span></div></div>'+
+    (sv?'<p class="ab-save">'+sv+'</p>':'')+t+
+    '<button class="btn" data-act="aburge" data-id="'+a.id+'">'+T_('Тянет')+'</button>'+
+    abCal(a)+(a.kind==='smoke'?abHealth(a,st):'')+
+    '<div class="mentor"><span class="who">'+T_('Эпиктет, «Беседы» II.18, пересказ')+'</span><p>'+men+'</p></div>'+
+    (warn?'<p class="muted small">'+warn+'</p>':'')+'</div>';}
+function viewAbst(){var L2=abOf();
+  var intro='<div class="card"><div class="mentor"><span class="who">'+T_('Эпиктет, «Беседы» II.18')+'</span><p>'+T_('«Если не хочешь быть гневливым, не питай эту привычку, не подбрасывай дров в огонь. Для начала успокойся и считай дни, когда ты не гневался: „Я гневался каждый день, потом через день, потом раз в три дня, потом раз в четыре“. А если продержишься тридцать дней, принеси жертву богу: привычка сначала слабеет, а потом исчезает совсем».')+'</p></div>'+
+    '<p class="muted small">'+T_('Эпиктет писал о гневе, но так же работает с любой привычкой: курением, алкоголем, сладким, соцсетями, ставками.')+'</p>'+
+    '<button class="btn primary" data-act="abnew">'+T_('Начать отсчёт')+'</button></div>';
+  if(!L2.length)return intro;
+  return L2.map(abCard).join('')+'<button class="btn" data-act="abnew">'+T_('Добавить ещё один отсчёт')+'</button>';}
+viewAbst.mo={};
+function curSel(c){return '<select id="ab_cur" aria-label="'+T_('Валюта')+'">'+CURS.map(function(x){return '<option'+(x===c?' selected':'')+'>'+x+'</option>';}).join('')+'</select>';}
+function abWarn(kind){
+  if(kind==='alcohol')return '<div class="mentor safe"><span class="who">'+T_('Важно')+'</span><p>'+T_('Если вы пили много и каждый день, не бросайте резко в одиночку: при сильной зависимости внезапный отказ опасен для здоровья. Сначала поговорите с врачом, он подскажет, как бросать безопасно.')+'</p></div>';
+  if(kind==='bets')return '<div class="mentor safe"><span class="who">'+T_('Важно')+'</span><p>'+T_('Если ставки уже бьют по деньгам или по близким, вы не одни. Поговорите со специалистом или найдите группу «Анонимные игроки».')+'</p></div>';
+  return '';}
+function abFields(s,k){
+  if(k.mode==='count')return '<label for="ab_per">'+T_('В день')+'<input type="number" id="ab_per" inputmode="decimal" min="0" step="0.5" value="'+esc(s.per||'')+'"></label>'+
+    '<label for="ab_pr">'+k.pq+'<span class="row nowrap"><input type="number" id="ab_pr" inputmode="decimal" min="0" value="'+esc(s.price||'')+'">'+curSel(s.cur)+'</span></label>';
+  if(k.mode==='hours')return '<label for="ab_per">'+T_('Часов в день')+'<input type="number" id="ab_per" inputmode="decimal" min="0" step="0.5" value="'+esc(s.per||'')+'"></label>';
+  return '<label for="ab_per">'+T_('Сумма в день')+'<span class="row nowrap"><input type="number" id="ab_per" inputmode="decimal" min="0" value="'+esc(s.per||'')+'">'+curSel(s.cur)+'</span></label>';}
+function abSetSheet(){var s=modal.ab||{},k=AK[s.kind],h='<div class="sheet" role="dialog" aria-modal="true" aria-label="'+T_('Новый отсчёт')+'"><h2>'+T_('Дни без')+'</h2><div class="mentor"><span class="who">'+T_('Марк Аврелий, наставник')+'</span><p>';
+  if(s.step===0){h+=T_('От чего вы хотите отказаться?')+'</p></div><div class="row">'+Object.keys(AK).map(function(x){return '<button class="chipbtn" data-act="abkind" data-v="'+x+'" aria-pressed="'+(s.kind===x)+'">'+AK[x].t+'</button>';}).join('')+'</div>'+
+    (s.kind==='other'?'<div class="form"><label for="ab_nm">'+T_('Дни без чего? Например: кофе, сериалов')+'<input type="text" id="ab_nm" maxlength="24" value="'+esc(s.nm||'')+'"></label></div>':'')+abWarn(s.kind);}
+  else if(s.step===1){h+=k.q+'</p></div><div class="form">'+abFields(s,k)+'</div>'+abWarn(s.kind);}
+  else if(s.step===2){h+=T_('Зачем вам это? Я покажу ваш ответ, когда будет тяжело.')+'</p></div><div class="form"><label for="ab_why">'+T_('Ваша причина')+'<textarea id="ab_why" rows="3" maxlength="120" placeholder="'+T_('Например, хочу снова бегать без одышки')+'">'+esc(s.why||'')+'</textarea></label></div>';}
+  else{h+=T_('С какого дня считаем? Каждый вечер отмечайте, удалось ли прожить день без срыва.')+'</p></div><div class="form"><label for="ab_st">'+T_('Первый день')+'<input type="date" id="ab_st" max="'+today()+'" value="'+esc(s.start||today())+'"></label></div>';}
+  return h+'<div class="row">'+(s.step<3?'<button class="btn primary" data-act="abnext">'+T_('Далее')+'</button>':'<button class="btn primary" data-act="abstart">'+T_('Начать отсчёт')+'</button>')+
+    (s.step>0?'<button class="btn" data-act="abback">'+T_('Назад')+'</button>':'')+'<button class="btn ghost" data-act="close">'+T_('Отмена')+'</button></div>'+
+    '<p class="muted small">'+T_('Шаг ')+(s.step+1)+T_(' из 4')+'</p></div>';}
+function abEditSheet(){var s=modal.ab||{},k=abKind(s);
+  return '<div class="sheet" role="dialog" aria-modal="true" aria-label="'+T_('Настройки отсчёта')+'"><h2>'+T_('Дни без ')+esc(s.kind==='other'?(s.nm||''):k.nm)+'</h2><div class="form">'+
+    (s.kind==='other'?'<label for="ab_nm">'+T_('Дни без чего?')+'<input type="text" id="ab_nm" maxlength="24" value="'+esc(s.nm||'')+'"></label>':'')+
+    abFields(s,k)+'<label for="ab_why">'+T_('Ваша причина')+'<textarea id="ab_why" rows="3" maxlength="120">'+esc(s.why||'')+'</textarea></label>'+
+    '<label for="ab_st">'+T_('Первый день')+'<input type="date" id="ab_st" max="'+today()+'" value="'+esc(s.start||today())+'"></label></div>'+abWarn(s.kind)+
+    '<div class="row"><button class="btn primary" data-act="abedsave">'+T_('Сохранить')+'</button><button class="btn ghost" data-act="close">'+T_('Отмена')+'</button></div>'+
+    '<button class="btn ghost" data-act="abeddel">'+(s.delAsk?T_('Точно удалить отсчёт? Все отметки пропадут'):T_('Удалить отсчёт'))+'</button></div>';}
+function abUrgeSheet(){var a=abById((modal.ab||{}).id);if(!a)return '';
+  return '<div class="sheet" role="dialog" aria-modal="true" aria-label="'+T_('Тянет')+'"><h2>'+T_('Тянет. Это пройдёт')+'</h2>'+
+    (a.why?'<div class="mentor"><span class="who">'+T_('Вы сами написали')+'</span><p>'+esc(a.why)+'</p></div>':'<p class="small">'+T_('Вы держитесь уже ')+abStreak(a)+' '+plural(abStreak(a),T_('день'),T_('дня'),T_('дней'))+'.</p>')+
+    '<div class="breath" aria-hidden="true"></div><p class="center" id="ab_tm" aria-live="polite">'+T_('Вдох на 4 счёта, выдох на 6. Одна минута.')+'</p>'+
+    '<p class="small">'+T_('Тяга накатывает волной и спадает. Переждите её здесь, никуда не торопясь.')+'</p>'+
+    '<div class="mentor"><span class="who">'+T_('Эпиктет, «Беседы» II.18')+'</span><p>'+T_('«Не подбрасывай дров в огонь».')+'</p></div>'+
+    '<div class="row"><button class="btn primary" data-act="abheld">'+T_('Тяга прошла, держусь')+'</button><button class="btn ghost" data-act="close">'+T_('Закрыть')+'</button></div></div>';}
+function abSlipSheet(){var a=abById((modal.ab||{}).id);if(!a)return '';
+  return '<div class="sheet" role="dialog" aria-modal="true" aria-label="'+T_('Срыв')+'"><h2>'+T_('Был срыв')+'</h2><div class="mentor"><span class="who">'+T_('Марк Аврелий, наставник')+'</span><p>'+
+    T_('Срыв не отменяет пути. Серия начнётся заново, но все дни без и всё сэкономленное останутся с вами. Давайте спокойно посмотрим, что к этому привело.')+'</p></div>'+
+    '<div class="form"><label for="ab_note">'+T_('Что к этому привело? По желанию')+'<textarea id="ab_note" rows="3" maxlength="120" placeholder="'+T_('Например, вечер с друзьями или усталость')+'"></textarea></label></div>'+
+    '<div class="row"><button class="btn primary" data-act="abslipsave">'+T_('Записать срыв')+'</button><button class="btn ghost" data-act="close">'+T_('Отмена')+'</button></div></div>';}
+function abRead(){var s=modal.ab;if(!s)return;var g=function(id){var e=$('#'+id);return e?e.value:null;},v;
+  if((v=g('ab_nm'))!==null)s.nm=v.trim().slice(0,24);if((v=g('ab_per'))!==null)s.per=v;if((v=g('ab_pr'))!==null)s.price=v;
+  if((v=g('ab_cur'))!==null)s.cur=v;if((v=g('ab_why'))!==null)s.why=v.trim().slice(0,120);if((v=g('ab_st'))!==null)s.start=v;}
+function abNum(v){var n=parseFloat(String(v==null?'':v).replace(',','.'));return isFinite(n)&&n>0?Math.round(n*100)/100:0;}
+function abCheck(s,step){
+  if(step===0||step==='all'){if(!s.kind){toast(T_('Выберите, от чего отказываетесь'));return false;}if(s.kind==='other'&&!s.nm){toast(T_('Напишите, без чего будут дни'));return false;}}
+  if(step===1||step==='all'){if(String(s.per||'').trim()&&!abNum(s.per)&&+String(s.per).replace(',','.')!==0){toast(T_('Введите число'));return false;}}
+  if(step===3||step==='all'){if(!/^\d{4}-\d{2}-\d{2}$/.test(s.start||'')||s.start>today()){toast(T_('Выберите дату не позже сегодняшней'));return false;}}
+  return true;}
+function abTimer(){clearInterval(viewAbst.tm);var n=60;viewAbst.tm=setInterval(function(){var el=$('#ab_tm');if(!el){clearInterval(viewAbst.tm);return;}n--;
+  if(n<=0){clearInterval(viewAbst.tm);el.textContent=T_('Минута прошла. Как вы?');return;}
+  el.textContent=((60-n)%10<4?T_('Вдох'):T_('Выдох'))+' · '+n+T_(' с');},1000);}
+
 /* ---------- мой автопортрет ---------- */
 function lifeOf(){if(!Array.isArray(S.life))S.life=[];return S.life;}
 function practiced(k){return done(k,'m')||done(k,'e')||entriesOf(S.days[k]).length>0;}
@@ -1011,6 +1163,10 @@ function autoEvents(){var out=[],keys=Object.keys(S.days||{}).sort();
   var lg=fitOf().log.slice().sort(function(a,b){return a.d<b.d?-1:a.d>b.d?1:0;});
   if(lg.length){var pg=progOf(lg[0].p);add(lg[0].d,T_('Первая тренировка'),pg?pg.name:'');}
   if(lg.length>=10)add(lg[9].d,T_('10 тренировок'));
+  abOf().forEach(function(a){var nmx=abName(a),run=0,prev=null,hit={},cum=0,ph={};add(a.start,T_('Начат отсчёт: дни без ')+nmx,a.why||'');
+    Object.keys(a.marks||{}).sort().forEach(function(d){if(a.marks[d]!=='ok'){run=0;prev=null;return;}run=(prev&&daysBetween(prev,d)===1)?run+1:1;prev=d;cum++;
+      [7,30,100,365].forEach(function(n){if(run===n&&!hit[n]){hit[n]=1;add(d,n+' '+plural(n,T_('день'),T_('дня'),T_('дней'))+T_(' без ')+nmx,n===30?T_('Эпиктет советовал продержаться тридцать дней'):'');}});
+      if(a.kind==='smoke'&&+a.per){[10,100].forEach(function(n){if(cum*a.per/20>=n&&!ph[n]){ph[n]=1;add(d,T_('Не выкурено ')+n+T_(' пачек'));}});}});});
   return out;}
 function viewPortrait(){var f=viewPortrait.f||'all',mine=lifeOf(),auto=autoEvents();
   var keys=Object.keys(S.days||{}),pd=keys.filter(practiced).length,en=0;keys.forEach(function(k){en+=entriesOf(S.days[k]).length;});
@@ -1138,6 +1294,7 @@ function scoreIndex(){
     if(!t.sample&&s.date&&s.date<td&&!(s.done&&s.doneDate&&s.doneDate<=s.date))A(s.date,'miss');});});});
   LEARN.forEach(function(b){var st=S.learn[b.id];if(st&&st.passed&&st.date)A(st.date,'plus');});
   var f=fitOf();f.log.forEach(function(l){A(l.d,'plus');});
+  abOf().forEach(function(a){for(var ad in (a.marks||{}))if(a.marks[ad]==='ok')A(ad,'plus');});
   for(var sd in f.steps)if(f.steps[sd]>=f.goal)A(sd,'plus');
   return idx;}
 function habitMisses(ds){var n=0,w=wd(parse(ds));S.habits.forEach(function(h){if(!h.checks[ds]&&ds>=h.start&&h.days.indexOf(w)>=0)n++;});return n;}
@@ -1267,6 +1424,14 @@ function modal(kind){
      T_('<label class="btn" for="importf" style="text-align:center">Или выбрать файл копии<input type="file" id="importf" accept=".txt,.json,text/plain,application/json" hidden></label>')+
      T_('<p class="muted small">Данные на этом телефоне заменятся данными из копии.</p>')+
      T_('<button class="btn primary" data-act="pastego">Восстановить</button><button class="btn ghost" data-act="pasteback">Отмена</button></div>');
+  }else if(kind==='abset'){
+    h=abSetSheet();
+  }else if(kind==='abedit'){
+    h=abEditSheet();
+  }else if(kind==='aburge'){
+    h=abUrgeSheet();
+  }else if(kind==='abslip'){
+    h=abSlipSheet();
   }else if(kind==='life'){
     h=lifeSheet();
   }else if(kind==='ideo'){
@@ -1318,6 +1483,8 @@ function seed(){
   S.habits=[h1,h2];
   var F=fitOf();if(!F.owned.back){fireOf();spend(10,T_('Программа «Здоровая спина и осанка»'));F.owned.back=ymd(addDays(new Date(),-20));}
   F.log=[2,5,9,12,16,19].filter(function(n){return n!==6&&n!==13;}).map(function(n){return {d:ymd(addDays(new Date(),-n)),p:'back',n:6,of:6};});
+  var abm={},abn={};for(var ai=16;ai>=1;ai--)abm[ymd(addDays(new Date(),-ai))]=ai===9?'slip':'ok';abn[ymd(addDays(new Date(),-9))]=T_('Вечер с друзьями, не удержался');
+  S.abst=[{id:uid('a'),kind:'smoke',nm:'',per:15,price:LANG==='en'?9:250,cur:LANG==='en'?'$':'₽',why:T_('Хочу снова бегать без одышки'),start:ymd(addDays(new Date(),-16)),marks:abm,notes:abn,urges:6}];
   S.life=[{id:uid('l'),d:ymd(addDays(new Date(),-120)),t:T_('Переезд в новый город'),n:T_('Новые люди и порядки, тревоги стало больше.')},
     {id:uid('l'),d:ymd(addDays(new Date(),-45)),t:T_('Новая работа'),n:T_('Больше ответственности и встреч.')},
     {id:uid('l'),d:ymd(addDays(new Date(),-20)),t:T_('Начал заниматься спиной'),n:T_('Долго откладывал и наконец начал.')}];
@@ -1455,6 +1622,28 @@ document.addEventListener('click',function(e){
   else if(a==='cpick'){var pv=+t.dataset.v;viewProgress.pick=viewProgress.pick===pv?null:pv;render();}
   else if(a==='pauseon'){S.pauses=S.pauses||[];S.pauses.push({from:today()});save();render();toast(T_('Пауза включена'));}
   else if(a==='pauseoff'){var pz2=pauseNow();if(pz2){pz2.to=ymd(addDays(new Date(),-1));if(pz2.to<pz2.from)S.pauses.pop();}save();render();toast(T_('С возвращением'));}
+  else if(a==='abnew'){modal.ab={step:0,kind:'',nm:'',per:'',price:'',cur:LANG==='en'?'$':'₽',why:'',start:today()};modal('abset');}
+  else if(a==='abkind'){abRead();modal.ab.kind=t.dataset.v;modal('abset');}
+  else if(a==='abnext'){abRead();if(!abCheck(modal.ab,modal.ab.step))return;modal.ab.step++;modal('abset');}
+  else if(a==='abback'){abRead();modal.ab.step=Math.max(0,modal.ab.step-1);modal('abset');}
+  else if(a==='abstart'){abRead();var ns=modal.ab;if(!abCheck(ns,'all'))return;
+    abOf().push({id:uid('a'),kind:ns.kind,nm:ns.kind==='other'?ns.nm:'',per:abNum(ns.per),price:abNum(ns.price),cur:ns.cur||'',why:ns.why||'',start:ns.start,marks:{},notes:{},urges:0});
+    modal.ab=null;save();closeModal();viewHabits.tab='a';go('habits');toast(T_('Отсчёт начат. Отмечайте каждый день'));}
+  else if(a==='abok'){var ak=abById(t.dataset.id);if(!ak)return;ak.marks=ak.marks||{};ak.marks[today()]='ok';save();render();var aks=abStreak(ak);
+    toast(aks===30?T_('30 дней подряд! Эпиктет был бы доволен'):T_('Отмечено. Дней подряд: ')+aks);}
+  else if(a==='abslip'){if(!abById(t.dataset.id))return;modal.ab={id:t.dataset.id};modal('abslip');}
+  else if(a==='abslipsave'){var asl=abById((modal.ab||{}).id);if(!asl)return;var anote=$('#ab_note');asl.marks=asl.marks||{};asl.notes=asl.notes||{};asl.marks[today()]='slip';
+    if(anote&&anote.value.trim())asl.notes[today()]=anote.value.trim().slice(0,120);modal.ab=null;save();closeModal();render();toast(T_('Записано. Завтра новый день'));}
+  else if(a==='abundo'){var au=abById(t.dataset.id);if(!au)return;delete au.marks[today()];if(au.notes)delete au.notes[today()];save();render();}
+  else if(a==='abday'){var ad=abById(t.dataset.id),dd=t.dataset.v;if(!ad||dd>today()||dd<ad.start)return;ad.marks=ad.marks||{};var cm=ad.marks[dd],nx=!cm?'ok':cm==='ok'?'slip':null;
+    if(nx)ad.marks[dd]=nx;else{delete ad.marks[dd];if(ad.notes)delete ad.notes[dd];}save();render();toast(fmtDate(dd)+': '+(nx==='ok'?T_('без срыва'):nx==='slip'?T_('срыв'):T_('не отмечен')));}
+  else if(a==='abmo'){var mid=t.dataset.id;viewAbst.mo[mid]=Math.min(0,(viewAbst.mo[mid]||0)+(+t.dataset.v));render();}
+  else if(a==='aburge'){if(!abById(t.dataset.id))return;modal.ab={id:t.dataset.id};modal('aburge');abTimer();}
+  else if(a==='abheld'){var ah=abById((modal.ab||{}).id);if(!ah)return;ah.urges=(ah.urges||0)+1;clearInterval(viewAbst.tm);modal.ab=null;save();closeModal();render();toast(T_('Устояли перед тягой: ')+ah.urges);}
+  else if(a==='abmenu'){var am=abById(t.dataset.id);if(!am)return;modal.ab={id:am.id,kind:am.kind,nm:am.nm,per:am.per||'',price:am.price||'',cur:am.cur,why:am.why,start:am.start};modal('abedit');}
+  else if(a==='abedsave'){abRead();var es=modal.ab,ae=abById(es.id);if(!ae||!abCheck(es,'all'))return;
+    if(ae.kind==='other')ae.nm=es.nm;ae.per=abNum(es.per);ae.price=abNum(es.price);ae.cur=es.cur||ae.cur;ae.why=es.why||'';ae.start=es.start;modal.ab=null;save();closeModal();render();toast(T_('Сохранено'));}
+  else if(a==='abeddel'){abRead();if(!modal.ab)return;if(!modal.ab.delAsk){modal.ab.delAsk=true;modal('abedit');return;}var dlid=modal.ab.id;S.abst=abOf().filter(function(x){return x.id!==dlid;});modal.ab=null;save();closeModal();render();toast(T_('Отсчёт удалён'));}
   else if(a==='lf'){viewPortrait.f=t.dataset.v;render();}
   else if(a==='lifeadd'){modal.life={};modal('life');}
   else if(a==='lifeedit'){var le=lifeOf().filter(function(x){return x.id===t.dataset.v;})[0];if(!le)return;modal.life=Object.assign({},le);modal('life');}
