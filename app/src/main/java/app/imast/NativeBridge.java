@@ -28,6 +28,32 @@ public class NativeBridge {
 
     @JavascriptInterface public String version() { return BuildConfig.VERSION_NAME; }
 
+    /** Сведения об устройстве для отчёта о проблеме: без личных данных пользователя. */
+    @JavascriptInterface
+    public String deviceInfo() {
+        try {
+            android.content.res.Configuration c = a.getResources().getConfiguration();
+            android.util.DisplayMetrics m = a.getResources().getDisplayMetrics();
+            org.json.JSONObject o = new org.json.JSONObject();
+            o.put("maker", Build.MANUFACTURER);
+            o.put("model", Build.MODEL);
+            o.put("release", Build.VERSION.RELEASE);
+            o.put("sdk", Build.VERSION.SDK_INT);
+            o.put("fontScale", c.fontScale);
+            o.put("density", m.density);
+            o.put("widthDp", c.screenWidthDp);
+            o.put("heightDp", c.screenHeightDp);
+            o.put("app", BuildConfig.VERSION_NAME + " (" + BuildConfig.VERSION_CODE + ")");
+            if (Build.VERSION.SDK_INT >= 26) {
+                android.content.pm.PackageInfo w = android.webkit.WebView.getCurrentWebViewPackage();
+                if (w != null) o.put("webview", w.versionName);
+            }
+            return o.toString();
+        } catch (Exception e) {
+            return "{}";
+        }
+    }
+
     // ---------- разрешения ----------
 
     /** name: notifications | calendar | exactAlarm | biometric | activity */

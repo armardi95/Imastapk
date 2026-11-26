@@ -1080,7 +1080,9 @@ var HELP=[
  ['remind',T_('Как включить напоминания?'),['напомин','уведомл','будильн','notification','remind','alarm'],
   T_('В приложении для Android: Настройки → «Напоминать о дневнике». Напоминания приходят во время утренних и вечерних вопросов виджета, это время меняется там же.\nЕсли уведомления не приходят, нажмите «Настройки разрешений Android».'),'settings'],
  ['sample',T_('Что за пример данных?'),['пример','демо','тестов','стерет','удалит','сброс','заново','с нуля','sample','demo','reset','erase','delete','start over'],
-  T_('«Загрузить пример за 3 недели» в настройках заполняет приложение примерными данными, чтобы всё посмотреть. Пока он загружен, вверху видна метка «Пример».\nПример заменяет ваши записи, поэтому сначала сохраните резервную копию. Чтобы начать со своими данными, в настройках нажмите «Стереть все данные».'),'settings']];
+  T_('«Загрузить пример за 3 недели» в настройках заполняет приложение примерными данными, чтобы всё посмотреть. Пока он загружен, вверху видна метка «Пример».\nПример заменяет ваши записи, поэтому сначала сохраните резервную копию. Чтобы начать со своими данными, в настройках нажмите «Стереть все данные».'),'settings'],
+ ['report',T_('Как сообщить о проблеме?'),['ошибк','баг','сломал','не работает','проблем','глюк','вылет','завис','поддержк','разработчик','bug','error','broken','crash','problem','support','developer'],
+  T_('Нажмите «Сообщить о проблеме» и опишите, что вы делали и что пошло не так. Imast сам приложит модель телефона, версию Android, размер экрана и масштаб шрифта. Ваши записи в отчёт не попадают. Отправить можно разработчику в Telegram или любым приложением.'),'report']];
 var HELP_START=['about','backup','habits','abst','fire','widget'];
 function hlTopic(id){return HELP.filter(function(h){return h[0]===id;})[0];}
 function hlNorm(s){return ' '+String(s||'').toLowerCase().replace(/ё/g,'е').replace(/[^a-zа-я0-9\-]+/g,' ').replace(/\s+/g,' ').trim()+' ';}
@@ -1106,14 +1108,48 @@ function viewHelp(){var ms=viewHelp.msgs,last=ms[ms.length-1];
   var thread=ms.map(function(m){
     return '<div class="hl-u">'+esc(m.u)+'</div><div class="hl-a" data-t="'+esc(m.id||'')+'"><span class="who">'+T_('Помощь')+'</span>'+
       m.a.split('\n').map(function(p){return '<p>'+esc(p)+'</p>';}).join('')+
-      (m.go?'<button class="btn" data-act="hgo" data-v="'+esc(m.go)+'">'+T_('Открыть: ')+esc(m.go==='settings'?T_('Настройки'):hlGoLabel(m.go))+'</button>':'')+'</div>';}).join('');
+      (m.go?'<button class="btn" data-act="hgo" data-v="'+esc(m.go)+'">'+(m.go==='report'?T_('Сообщить о проблеме'):T_('Открыть: ')+esc(m.go==='settings'?T_('Настройки'):hlGoLabel(m.go)))+'</button>':'')+'</div>';}).join('');
   var sug=(last?last.alt:HELP_START).map(hlTopic).filter(Boolean);
   return '<h2>'+T_('Помощь ИИ')+'</h2>'+
    '<div class="card"><p>'+T_('Спросите, как пользоваться Imast и что в нём есть.')+'</p><p class="muted small">'+T_('Сейчас отвечает встроенный справочник по приложению. В бета-версии на те же вопросы будет отвечать нейросеть.')+'</p></div>'+
    (thread?'<div class="hl-thread" aria-live="polite">'+thread+'</div>':'')+
    (sug.length?'<div><div class="muted small" style="margin-bottom:8px">'+(last?T_('Ещё по теме'):T_('Частые вопросы'))+'</div><div class="hl-chips">'+sug.map(function(h){return '<button class="chipbtn" data-act="hask" data-v="'+h[0]+'">'+esc(h[1])+'</button>';}).join('')+'</div></div>':'')+
    '<form class="hl-form" id="hlform" autocomplete="off"><input type="text" id="hlq" maxlength="200" enterkeyhint="send" aria-label="'+T_('Ваш вопрос')+'" placeholder="'+T_('Задайте вопрос')+'"><button class="btn primary" type="submit">'+T_('Спросить')+'</button></form>'+
-   (ms.length?'<button class="btn ghost" data-act="hclear">'+T_('Очистить разговор')+'</button>':'');}
+   (ms.length?'<button class="btn ghost" data-act="hclear">'+T_('Очистить разговор')+'</button>':'')+
+   '<div class="card"><p>'+T_('Что-то не работает или выглядит странно?')+'</p><button class="btn" data-act="report">'+T_('Сообщить о проблеме')+'</button></div>';}
+/* ---------- сообщить о проблеме ---------- */
+var SUPPORT_TG='DMK8H'; /* куда уходят отчёты; позже можно заменить на отдельный аккаунт поддержки */
+function repZoom(){try{var e=document.createElement('span');e.style.cssText='position:absolute;visibility:hidden;display:inline-block;font-size:100px;line-height:1;white-space:nowrap';e.textContent='M';document.body.appendChild(e);var h=e.getBoundingClientRect().height;e.remove();return h>0?h/100:1;}catch(x){return 1;}}
+function repInfo(){var ni=null;try{if(NATIVE&&NATIVE.deviceInfo)ni=JSON.parse(NATIVE.deviceInfo());}catch(e){}
+  var ua=navigator.userAgent||'',am=ua.match(/Android ([\d.]+)(?:; ([^;)]+))?/),cm=ua.match(/Chrome\/([\d.]+)/);
+  var model=ni&&ni.model?((ni.maker&&String(ni.model).toLowerCase().indexOf(String(ni.maker).toLowerCase())!==0?ni.maker+' ':'')+ni.model)
+    :(am&&am[2]&&am[2]!=='K'?am[2].replace(/ Build.*$/,''):(/iPhone|iPad/.test(ua)?'iOS':(navigator.platform||'—')));
+  var sys=ni&&ni.release?'Android '+ni.release+' (SDK '+ni.sdk+')':(am?'Android '+am[1]:(navigator.platform||'—'));
+  var fz=Math.round((ni&&ni.fontScale?ni.fontScale:repZoom())*100)+'%';
+  var tz='';try{tz=Intl.DateTimeFormat().resolvedOptions().timeZone||'';}catch(e){}
+  var dt=new Date(),p2=function(n){return (n<10?'0':'')+n;};
+  return [[T_('Версия'),ni&&ni.app?ni.app:(NATIVE&&NATIVE.version?NATIVE.version():T_('веб-версия'))],
+    [T_('Устройство'),model],[T_('Система'),sys],
+    [T_('Экран'),innerWidth+'×'+innerHeight+', '+T_('плотность')+' '+(ni&&ni.density?ni.density:(window.devicePixelRatio||1))],
+    [T_('Шрифт системы'),fz],
+    [T_('Браузер'),ni&&ni.webview?'WebView '+ni.webview:(cm?'Chrome '+cm[1]:ua.slice(0,60))],
+    [T_('Язык и раздел'),LANG+' · '+route()],
+    [T_('Время'),p2(dt.getDate())+'.'+p2(dt.getMonth()+1)+'.'+dt.getFullYear()+' '+p2(dt.getHours())+':'+p2(dt.getMinutes())+(tz?' ('+tz+')':'')]];}
+function reportSheet(){var rows=repInfo();
+  return '<div class="sheet" role="dialog" aria-modal="true" aria-label="'+T_('Сообщить о проблеме')+'"><h2>'+T_('Сообщить о проблеме')+'</h2>'+
+   '<p class="small muted">'+T_('Опишите, что вы нажимали и что пошло не так. Скриншот можно отправить в чат отдельно.')+'</p>'+
+   '<div class="form"><label class="small" for="reptext">'+T_('Что случилось?')+'</label><textarea id="reptext" rows="4" maxlength="2000" placeholder="'+T_('Например: открыл «Прошивку», текст наезжает на карточки')+'"></textarea></div>'+
+   '<div class="card" style="margin:0"><h3>'+T_('Imast приложит')+'</h3><ul class="plain small">'+rows.map(function(r){return '<li><span class="muted">'+esc(r[0])+':</span> '+esc(r[1])+'</li>';}).join('')+'</ul>'+
+   '<p class="muted small">'+T_('Ваши записи, привычки и задачи в отчёт не попадают.')+'</p></div>'+
+   '<button class="btn primary" data-act="repsend">'+T_('Отправить в Telegram')+'</button>'+
+   (NATIVE||navigator.share?'<button class="btn" data-act="repshare">'+T_('Отправить другим способом')+'</button>':'')+
+   '<button class="btn" data-act="repcopy">'+T_('Скопировать текст')+'</button>'+
+   '<button class="btn ghost" data-act="close">'+T_('Закрыть')+'</button></div>';}
+function repText(){var d=$('#reptext'),m=d?d.value.trim():'';
+  return T_('Imast — сообщение о проблеме')+'\n\n'+(m||T_('(без описания)'))+'\n\n'+repInfo().map(function(r){return r[0]+': '+r[1];}).join('\n');}
+function copyText(t,cb){var fb=function(){try{var ta=document.createElement('textarea');ta.value=t;ta.setAttribute('readonly','');ta.style.cssText='position:fixed;top:-1000px;opacity:0';document.body.appendChild(ta);ta.select();document.execCommand('copy');ta.remove();cb(true);}catch(e){cb(false);}};
+  if(navigator.clipboard&&navigator.clipboard.writeText)navigator.clipboard.writeText(t).then(function(){cb(true);},fb);else fb();}
+function openExt(u){if(NATIVE){goingOut();location.href=u;}else window.open(u,'_blank','noopener');}
 viewHelp.msgs=[];
 
 /* ---------- дни без ---------- */
@@ -1513,8 +1549,11 @@ function modal(kind){
      T_('<label class="btn" for="importf" style="text-align:center">Восстановить из файла копии<input type="file" id="importf" accept=".txt,.json,text/plain,application/json" hidden></label>')+
      T_('<button class="btn" data-act="pasteopen">Вставить копию текстом</button>')+
      T_('<button class="btn" data-act="sample">Загрузить пример за 3 недели</button>')+
+     '<button class="btn" data-act="report">'+T_('Сообщить о проблеме')+'</button>'+
      '<button class="btn" data-act="erase">'+(modal.erase?T_('Точно стереть всё?'):T_('Стереть все данные'))+'</button>'+
      T_('<button class="btn primary" data-act="close">Закрыть</button></div>');
+  }else if(kind==='report'){
+    h=reportSheet();
   }else if(kind==='lock'){
     if(S.pin&&S.pin.h){if(!pinState)pinState={mode:'unlock',buf:'',msg:'',tries:0,until:0};
       h=T_('<div class="sheet" role="dialog" aria-modal="true" aria-label="Вход"><h2 style="text-align:center">Imast</h2><div id="pinbox">')+pinInner()+T_('</div><button class="linkbtn" data-act="forgot">Забыли код?</button></div>');}
@@ -1753,9 +1792,13 @@ document.addEventListener('click',function(e){
     if(ae.kind==='other')ae.nm=es.nm;ae.per=abNum(es.per);ae.price=abNum(es.price);ae.cur=es.cur||ae.cur;ae.why=es.why||'';ae.start=es.start;modal.ab=null;save();closeModal();render();toast(T_('Сохранено'));}
   else if(a==='abeddel'){abRead();if(!modal.ab)return;if(!modal.ab.delAsk){modal.ab.delAsk=true;modal('abedit');return;}var dlid=modal.ab.id;S.abst=abOf().filter(function(x){return x.id!==dlid;});modal.ab=null;save();closeModal();render();toast(T_('Отсчёт удалён'));}
   else if(a==='hask'){var ht=hlTopic(t.dataset.v);if(ht)hlAsk(null,{id:ht[0],u:ht[1],t:ht[3],go:ht[4],alt:hlFind(ht[1]).alt.filter(function(x){return x[0]!==ht[0];})});}
-  else if(a==='hgo'){var hv=(t.dataset.v||'').split(':');if(hv[0]==='settings'){modal.erase=false;modal('settings');return;}
+  else if(a==='hgo'){var hv=(t.dataset.v||'').split(':');if(hv[0]==='settings'){modal.erase=false;modal('settings');return;}if(hv[0]==='report'){modal('report');return;}
     if(hv[0]==='habits'&&hv[1])viewHabits.tab=hv[1];if(hv[0]==='progress'&&hv[1])viewProgress.tab=hv[1];go(hv[0]);}
   else if(a==='hclear'){viewHelp.msgs=[];render();}
+  else if(a==='report'){modal('report');}
+  else if(a==='repsend'){var rt=repText();copyText(rt,function(ok){toast(ok?T_('Отчёт скопирован: вставьте его в чат'):T_('Не удалось скопировать'));setTimeout(function(){openExt('https://t.me/'+SUPPORT_TG);},ok?600:0);});}
+  else if(a==='repshare'){var rs=repText();if(NATIVE){goingOut();NATIVE.shareText(rs,T_('Imast — сообщение о проблеме'));}else if(navigator.share)navigator.share({text:rs}).catch(function(){});}
+  else if(a==='repcopy'){copyText(repText(),function(ok){toast(ok?T_('Отчёт скопирован'):T_('Не удалось скопировать'));});}
   else if(a==='lf'){viewPortrait.f=t.dataset.v;render();}
   else if(a==='lifeadd'){modal.life={};modal('life');}
   else if(a==='lifeedit'){var le=lifeOf().filter(function(x){return x.id===t.dataset.v;})[0];if(!le)return;modal.life=Object.assign({},le);modal('life');}
