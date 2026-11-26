@@ -31,7 +31,7 @@ Keystore в репозитории — только для тестовых сб
 
 ## Где что лежит
 - Идеи: документ «Imast: идеи проекта» — https://claude.ai/artifact/QpTyCL3eyRXWgkRjP2qavi. Слова Марка — в «Твои идеи», дополнения Claude — в «Предложенные».
-- Логотип: холст «Imast — армянский логотип» — https://claude.ai/artifact/66XcUuWZHWoRkH89bu4uHU. Финалисты: точная копия эскиза Марка и вариант B; выбор ещё не сделан.
+- Логотип: холст «Imast — армянский логотип» — https://claude.ai/artifact/66XcUuWZHWoRkH89bu4uHU. Финал (26.11.2026) — доска 7 «Эскиз Марка — точная копия», буквы Իմ по центру кольца. Иконка Android, PNG для старых Android, `store/icon-512.png` для Google Play и `assets/icon.svg` генерирует `tools/make_icons.py`; в приложении знак вписан в шапку, меню и заставку (`#splash`). До 96 px — упрощённый знак: одно кольцо без делений, буквы чуть жирнее.
 - Презентации: RU https://claude.ai/artifact/EHF53nqiwtrw63djU86sqU, EN https://claude.ai/artifact/HKVhxDjbPewPMprTE7paGT, для телефона https://claude.ai/artifact/H146f5S5c5XGiUJy1pjSdw.
 - Веб-демо: https://armardi95.github.io/Imastapk/
 
